@@ -3,6 +3,9 @@
     <name>Workday employee to ServiceNow ticket</name>
     <description></description>
     <muleExtension name="ServiceNow" qualifier="org.mule.tooling.ui.contribution.servicenow"/>
-    <muleExtension name="Workday Payroll" qualifier="org.mule.tooling.ui.contribution.wd-payroll"/>
     <muleExtension name="Workday Staffing" qualifier="org.mule.tooling.ui.contribution.wd-staffing"/>
+    <muleExtension name="Workday Recruiting" qualifier="org.mule.tooling.ui.contribution.wd-recruiting"/>
+    <muleExtension name="Salesforce" qualifier="org.mule.tooling.ui.contribution.sfdc.3.5.0"/>
+    <muleExtension name="Workday Human Resource" qualifier="org.mule.tooling.ui.contribution.wd-hr"/>
+    <muleExtension name="Workday Talent" qualifier="org.mule.tooling.ui.contribution.wd-talent"/>
 </mule-project>
