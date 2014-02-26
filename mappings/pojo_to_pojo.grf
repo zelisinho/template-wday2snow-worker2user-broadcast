@@ -11027,12 +11027,10 @@
 //START -> DO NOT REMOVE
 output.__id = input.__id;
 //END -> DO NOT REMOVE
-output.name = input.name;
-output.active = input.active;
 output.firstName = input.firstName;
 output.lastName = input.lastName;
 output.middleName = input.middleName;
-]]></attr>
+output.title = input.businessTitle;]]></attr>
 </Node>
 <Edge debugMode="true" fromNode="BEAN_READER0:0" guiBendpoints="" id="Edge0" inPort="Port 0 (in)" metadata="4c6b378d-21dc-457c-9276-4edb09a65f6a" outPort="Port 0 (out)" toNode="FOREACH_OBJECT_OBJECT:0"/>
 <Edge debugMode="true" fromNode="FOREACH_OBJECT_OBJECT:0" guiBendpoints="" id="Edge1" inPort="Port 0 (in)" metadata="3abf3304-caf9-4162-8dbb-1a904094f9e7" outPort="Port 0 (out)" toNode="BEAN_WRITER0:0"/>
