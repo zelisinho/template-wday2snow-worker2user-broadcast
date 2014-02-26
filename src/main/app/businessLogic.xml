@@ -48,18 +48,18 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
 		</batch:input>
 		<batch:process-records>
 			<batch:step name="foreachWorkerInWorkdayCreateUserInServiceNow">
-				<data-mapper:transform config-ref="pojo_to_pojo"
-					doc:name="WorkDay Worker to ServiceNow User" />
-                <servicenow:insert-user config-ref="ServiceNow"
-        			doc:name="ServiceNow">
-        		</servicenow:insert-user>
+                <flow-ref name="createUserInServiceNow" doc:name="call createUserInServiceNow"/>
 			</batch:step>
 		</batch:process-records>
 		<batch:on-complete>
-			<logger
-				message="Total records: #[payload.totalRecords], successful records: #[payload.successfulRecords], failed records: #[payload.failedRecords]"
-				level="ERROR" doc:name="log results" />
+            <logger message="Total records: #[payload.totalRecords], successful records: #[payload.successfulRecords], failed records: #[payload.failedRecords]" level="INFO" doc:name="log Batch results"/>
 		</batch:on-complete>
 	</batch:job>
+    <flow name="createUserInServiceNow" doc:name="createUserInServiceNow">
+        <data-mapper:transform config-ref="pojo_to_pojo" doc:name="map WorkDay Worker to ServiceNow User"/>
+        <servicenow:insert-user config-ref="ServiceNow" doc:name="insert User in ServiceNow"/>
+        <json:object-to-json-transformer doc:name=" transform response to JSON"/>
+        <logger message="#[payload]" level="INFO" doc:name="log record result"/>
+    </flow>
 
 </mule>

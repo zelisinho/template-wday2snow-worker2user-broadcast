@@ -10,16 +10,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.mule.api.MuleMessage;
-import org.mule.api.transformer.TransformerException;
-import org.mule.transformer.AbstractMessageTransformer;
-
 import com.workday.hr.EffectiveAndUpdatedDateTimeDataType;
-import com.workday.hr.EmployeeGetType;
-import com.workday.hr.EmployeeReferenceType;
-import com.workday.hr.ExternalIntegrationIDReferenceDataType;
 import com.workday.hr.GetWorkersRequestType;
-import com.workday.hr.IDType;
 import com.workday.hr.ResponseFilterType;
 import com.workday.hr.TransactionLogCriteriaType;
 import com.workday.hr.TransactionLogTypeObjectIDType;
