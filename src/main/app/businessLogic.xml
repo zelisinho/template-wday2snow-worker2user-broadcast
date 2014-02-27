@@ -23,43 +23,28 @@ http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd
 http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
-	<servicenow:config name="ServiceNow" username="${snow.user}"
-		password="${snow.password}" serviceEndpoint="${snow.endpoint}"
-		doc:name="ServiceNow">
-		<servicenow:connection-pooling-profile
-			initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW" />
-		<reconnect />
-	</servicenow:config>
-	<wd-hr:config name="Workday_Human_Resource" hrUser="${wday.user}"
-		hrPassword="${wday.password}" hrEndpoint="${wday.endpoint}" doc:name="Workday Human Resource">
-		<wd-hr:connection-pooling-profile
-			initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW" />
-	</wd-hr:config>
-	<data-mapper:config name="pojo_to_pojo"
-		transformationGraphPath="pojo_to_pojo.grf" doc:name="pojo_to_pojo" />
 	<batch:job name="businessLogicBatch1">
 		<batch:threading-profile poolExhaustedAction="WAIT" />
-		<batch:input>
-			<wd-hr:get-workers config-ref="Workday_Human_Resource"
-				doc:name="get Workers from Workday Human Resource"
-				workersRequest-ref="#[org.mule.kicks.WorkersRequest.create()]" />
-			<set-payload value="#[payload.responseData.worker]"
-				doc:name="set to Woker collection" />
-		</batch:input>
 		<batch:process-records>
 			<batch:step name="foreachWorkerInWorkdayCreateUserInServiceNow">
-                <flow-ref name="createUserInServiceNow" doc:name="call createUserInServiceNow"/>
+				<flow-ref name="createUserInServiceNow" doc:name="call createUserInServiceNow" />
 			</batch:step>
 		</batch:process-records>
 		<batch:on-complete>
-            <logger message="Total records: #[payload.totalRecords], successful records: #[payload.successfulRecords], failed records: #[payload.failedRecords]" level="INFO" doc:name="log Batch results"/>
+			<json:object-to-json-transformer
+				doc:name="transform BatchJobInstance to JSON" />
+			<logger level="INFO" doc:name="log 'Migration process has finished'"
+				message="Migration process has finished: #[payload]" />
 		</batch:on-complete>
 	</batch:job>
-    <flow name="createUserInServiceNow" doc:name="createUserInServiceNow">
-        <data-mapper:transform config-ref="pojo_to_pojo" doc:name="map WorkDay Worker to ServiceNow User"/>
-        <servicenow:insert-user config-ref="ServiceNow" doc:name="insert User in ServiceNow"/>
-        <json:object-to-json-transformer doc:name=" transform response to JSON"/>
-        <logger message="#[payload]" level="INFO" doc:name="log record result"/>
-    </flow>
+	<flow name="createUserInServiceNow" doc:name="createUserInServiceNow">
+		<data-mapper:transform config-ref="pojo_to_pojo"
+			doc:name="map WorkDay Worker to ServiceNow User" />
+		<servicenow:insert-user config-ref="ServiceNow"
+			doc:name="insert User in ServiceNow" />
+		<json:object-to-json-transformer
+			doc:name=" transform response to JSON" />
+		<logger message="#[payload]" level="INFO" doc:name="log record result" />
+	</flow>
 
 </mule>
