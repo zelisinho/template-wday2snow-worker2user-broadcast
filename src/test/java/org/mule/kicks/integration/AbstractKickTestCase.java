@@ -89,6 +89,7 @@ public class AbstractKickTestCase extends FunctionalTestCase {
 	}
 	
 	protected void runSchedulersOnce(String flowName) throws Exception {
+//            Collection<Scheduler> schedulers = muleContext.getRegistry().lookupScheduler(Schedulers.flowConstructPollingSchedulers(flowName));
             Collection<Scheduler> schedulers = muleContext.getRegistry().lookupScheduler(Schedulers.flowPollingSchedulers(flowName));
             for (final Scheduler scheduler : schedulers) {
                     scheduler.schedule();
@@ -96,6 +97,7 @@ public class AbstractKickTestCase extends FunctionalTestCase {
         }
 
         protected void stopFlowSchedulers(String flowName) throws MuleException {
+//            Collection<Scheduler> schedulers = muleContext.getRegistry().lookupScheduler(Schedulers.flowConstructPollingSchedulers(flowName));
             Collection<Scheduler> schedulers = muleContext.getRegistry().lookupScheduler(Schedulers.flowPollingSchedulers(flowName));
             for (final Scheduler scheduler : schedulers) {
                 scheduler.stop();
