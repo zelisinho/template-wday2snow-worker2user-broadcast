@@ -17,15 +17,20 @@ Here you should:
 Here you should not:
 	* Run validations against external systems
 	* Choose flow of your application based on input parameters">
-        <poll doc:name="fireup Worker synchronization">
+<!--         <poll doc:name="fireup Worker synchronization">
             <fixed-frequency-scheduler frequency="${poll.frequencyMillis}" startDelay="${poll.startDelayMillis}"/>
             <watermark variable="lastQueryDate" default-expression="${watermark.defaultExpression}" selector="MAX" selector-expression="42 //#[payload.LastModifiedDate]"/>
             <processor-chain doc:name="query Workers">
                 <wd-hr:get-workers config-ref="Workday_Human_Resource" doc:name="get Workers from Workday Human Resource" workersRequest-ref="#[org.mule.kicks.WorkersRequest.create()]"></wd-hr:get-workers>
                 <set-payload value="#[payload.responseData.worker]" doc:name="set to Worker collection"/>
             </processor-chain>
-        </poll>
+        </poll> -->
         <logger message="RECORDS: #[payload.size()]" level="INFO" doc:name="Logger"/>
 <!--         <batch:execute name="businessLogicBatch1" doc:name="trigger Batch Execute"/> -->
+    </flow>
+    <flow name="endpointsFlow1" doc:name="endpointsFlow1">
+        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" doc:name="HTTP"/>
+        <batch:execute name="businessLogicBatch1" doc:name="trigger Batch processing"/>
+        <set-payload value="Batch triggered!" doc:name="set response"/>
     </flow>
 </mule>

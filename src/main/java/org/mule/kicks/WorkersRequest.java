@@ -14,7 +14,6 @@ import com.workday.hr.EffectiveAndUpdatedDateTimeDataType;
 import com.workday.hr.GetWorkersRequestType;
 import com.workday.hr.ResponseFilterType;
 import com.workday.hr.TransactionLogCriteriaType;
-import com.workday.hr.TransactionLogTypeObjectIDType;
 import com.workday.hr.TransactionLogTypeObjectType;
 import com.workday.hr.TransactionTypeReferencesType;
 import com.workday.hr.WorkerRequestCriteriaType;
