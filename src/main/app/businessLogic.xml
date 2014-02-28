@@ -31,14 +31,26 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
 				message="Migration process has finished: #[payload]" />
 		</batch:on-complete>
 	</batch:job>
-	<flow name="createUserInServiceNow" doc:name="createUserInServiceNow">
-		<data-mapper:transform config-ref="pojo_to_pojo"
-			doc:name="map WorkDay Worker to ServiceNow User" />
-		<servicenow:insert-user config-ref="ServiceNow"
-			doc:name="insert User in ServiceNow" />
-		<json:object-to-json-transformer
-			doc:name=" transform response to JSON" />
-		<logger message="#[payload]" level="INFO" doc:name="log record result" />
-	</flow>
+
+    <flow name="createUserInServiceNow" doc:name="createUserInServiceNow">
+        <enricher source="#[payload]" target="#[flowVars['listOfUsersInServiceNow']]" doc:name="Message Enricher">
+            <processor-chain doc:name="Processor Chain">
+                <custom-transformer class="org.mule.kicks.CreateGetRecords" doc:name="prepare query for deciding the upsert operation"/>
+                <servicenow:get-user-records config-ref="ServiceNow" doc:name="query user to be upserted"/>
+            </processor-chain>
+        </enricher>
+        <choice doc:name="Choice">
+            <when expression="#[listOfUsersInServiceNow.getGetRecordsResult().isEmpty()]">
+                <data-mapper:transform config-ref="pojo_to_pojo" doc:name="map WorkDay Worker to ServiceNow Insert"/>
+                <servicenow:insert-user config-ref="ServiceNow" doc:name="insert User in ServiceNow"/>
+            </when>
+            <otherwise>
+                <data-mapper:transform doc:name="map WorkDay Worker to ServiceNow Update" config-ref="pojo_to_pojo_1"/>
+                <servicenow:update-user config-ref="ServiceNow" doc:name="update User in ServiceNow"/>
+            </otherwise>
+        </choice>
+        <json:object-to-json-transformer doc:name=" transform response to JSON"/>
+        <logger message="#[payload]" level="INFO" doc:name="log record result"/>
+    </flow>
 
 </mule>
