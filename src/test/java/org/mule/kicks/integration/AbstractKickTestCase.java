@@ -2,16 +2,12 @@ package org.mule.kicks.integration;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.mule.api.MuleException;
 import org.mule.api.config.MuleProperties;
-import org.mule.api.schedule.Scheduler;
-import org.mule.api.schedule.Schedulers;
 import org.mule.construct.Flow;
 import org.mule.processor.chain.SubflowInterceptingChainLifecycleWrapper;
 import org.mule.tck.junit4.FunctionalTestCase;
@@ -88,31 +84,15 @@ public class AbstractKickTestCase extends FunctionalTestCase {
 	    return (SubflowInterceptingChainLifecycleWrapper) muleContext.getRegistry().lookupObject(flowName);
 	}
 	
-	protected void runSchedulersOnce(String flowName) throws Exception {
-//            Collection<Scheduler> schedulers = muleContext.getRegistry().lookupScheduler(Schedulers.flowConstructPollingSchedulers(flowName));
-            Collection<Scheduler> schedulers = muleContext.getRegistry().lookupScheduler(Schedulers.flowPollingSchedulers(flowName));
-            for (final Scheduler scheduler : schedulers) {
-                    scheduler.schedule();
-            }
-        }
+    protected String buildUniqueName(String kickName, String name) {
+        String timeStamp = new Long(new Date().getTime()).toString();
 
-        protected void stopFlowSchedulers(String flowName) throws MuleException {
-//            Collection<Scheduler> schedulers = muleContext.getRegistry().lookupScheduler(Schedulers.flowConstructPollingSchedulers(flowName));
-            Collection<Scheduler> schedulers = muleContext.getRegistry().lookupScheduler(Schedulers.flowPollingSchedulers(flowName));
-            for (final Scheduler scheduler : schedulers) {
-                scheduler.stop();
-            }
-        }
-        
-        protected String buildUniqueName(String kickName, String name) {
-            String timeStamp = new Long(new Date().getTime()).toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append(name);
+        builder.append(kickName);
+        builder.append(timeStamp);
 
-            StringBuilder builder = new StringBuilder();
-            builder.append(name);
-            builder.append(kickName);
-            builder.append(timeStamp);
-
-            return builder.toString();
-        }
+        return builder.toString();
+    }
 
 }
