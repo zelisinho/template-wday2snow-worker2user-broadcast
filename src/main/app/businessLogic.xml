@@ -22,9 +22,6 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
 	
 	<batch:job name="businessLogicBatch1">
 		<batch:threading-profile poolExhaustedAction="WAIT" />
-        <batch:input>
-            <custom-transformer class="org.mule.kicks.CreateIterable" doc:name="create Iterable with Insert objects"/>
-        </batch:input>
 		<batch:process-records>
 			<batch:step name="foreachWorkerInWorkdayCreateUserInServiceNow">
 				<flow-ref name="createUserInServiceNow" doc:name="call createUserInServiceNow" />
