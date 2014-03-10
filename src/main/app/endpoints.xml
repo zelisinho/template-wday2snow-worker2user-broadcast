@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr"
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
 	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:http="http://www.mulesoft.org/schema/mule/http"
@@ -14,7 +14,8 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd-hr/current/mule-wd-hr.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
-http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
 
 	<!-- In this file you should declare all your inbound endpoints and from 
 		here controll the access to your application -->
@@ -31,9 +32,10 @@ Here you should not:
 		<poll doc:name="fireup Worker synchronization">
 			<fixed-frequency-scheduler frequency="${poll.frequencyMillis}"
 				startDelay="${poll.startDelayMillis}" />
-			<watermark variable="lastQueryDate" default-expression="${watermark.defaultExpression}"
+			<watermark variable="lastQueryDate" default-expression="#[groovy: java.util.Date.parse(&quot;yyyy-MM-dd'T'HH:mm:ss&quot;, &quot;${watermark.defaultExpression}&quot;) ]"
 				update-expression="#[ new java.util.Date() ]" />
 			<processor-chain doc:name="query Workers and set collection">
+                <logger message="Fetching Workday updates..." level="INFO" doc:name="log 'Fetching workday updates...'"/>
 				<wd-hr:get-workers config-ref="Workday_Human_Resource"
 					doc:name="get Workers from Workday Human Resource"
 					workersRequest-ref="#[org.mule.kicks.WorkersRequest.create(lastQueryDate)]"></wd-hr:get-workers>
@@ -41,7 +43,10 @@ Here you should not:
 					doc:name="set to Worker collection" />
 			</processor-chain>
 		</poll>
-		<batch:execute name="businessLogicBatch1" doc:name="trigger Batch Execute" />
+        <set-variable variableName="wdWorker" value="#[payload.get(0)]" doc:name="store worker in variable"/>
+        <logger level="INFO" doc:name="log worker's name" message="#[groovy: payload.collect { it.getWorkerData().getPersonalData().getNameData().getLegalNameData().getNameDetailData().getFirstName() +  ' '+ it.getWorkerData().getPersonalData().getNameData().getLegalNameData().getNameDetailData().getLastName() } ]"/>
+        <flow-ref name="createUserInServiceNow" doc:name="Flow Reference"/>
+		<!-- <batch:execute name="businessLogicBatch1" doc:name="trigger Batch Execute" /> -->
 	</flow>
 
 </mule>

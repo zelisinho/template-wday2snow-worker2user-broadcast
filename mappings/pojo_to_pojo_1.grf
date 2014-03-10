@@ -11033,9 +11033,12 @@
 //START -> DO NOT REMOVE
 output.__id = input.__id;
 //END -> DO NOT REMOVE
+output.active = input.active;
 output.firstName = input.firstName;
 output.lastName = input.lastName;
-output.middleName = input.middleName_1;]]></attr>
+output.city = input.cityOfBirth;
+output.middleName = input.middleName_1;
+]]></attr>
 </Node>
 <Edge debugMode="true" fromNode="BEAN_READER0:0" guiBendpoints="" id="Edge0" inPort="Port 0 (in)" metadata="c8cdd91f-2e00-47c4-a42e-efad38bf6bbb" outPort="Port 0 (out)" toNode="FOREACH_OBJECT_OBJECT:0"/>
 <Edge debugMode="true" fromNode="FOREACH_OBJECT_OBJECT:0" guiBendpoints="" id="Edge1" inPort="Port 0 (in)" metadata="322c3fdf-d2fd-4b40-8dd8-2b27a2adfb57" outPort="Port 0 (out)" toNode="BEAN_WRITER0:0"/>

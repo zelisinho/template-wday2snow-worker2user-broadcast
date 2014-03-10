@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:core="http://www.mulesoft.org/schema/mule/core"
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:core="http://www.mulesoft.org/schema/mule/core"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
 	xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper"
 	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
@@ -15,15 +15,20 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd
 http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd
-http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
 
 	<data-mapper:config name="pojo_to_pojo" transformationGraphPath="pojo_to_pojo.grf" doc:name="pojo_to_pojo" />
     <data-mapper:config name="pojo_to_pojo_1" transformationGraphPath="pojo_to_pojo_1.grf" doc:name="pojo_to_pojo_1"/>
 	
-	<batch:job name="businessLogicBatch1">
+<!-- 	<batch:job name="businessLogicBatch1">
 		<batch:threading-profile poolExhaustedAction="WAIT" />
+        <batch:input>
+            <logger message="Starting batch job..." level="INFO" doc:name="Debug Logger"/>
+        </batch:input>
 		<batch:process-records>
 			<batch:step name="foreachWorkerInWorkdayCreateUserInServiceNow">
+                <logger message="Hola Mariano!" level="INFO" doc:name="Debug Logger"/>
 				<flow-ref name="createUserInServiceNow" doc:name="call createUserInServiceNow" />
 			</batch:step>
 		</batch:process-records>
@@ -33,32 +38,26 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
 			<logger level="INFO" doc:name="log 'Migration process has finished'"
 				message="Migration process has finished: #[payload]" />
 		</batch:on-complete>
-	</batch:job>
+	</batch:job> -->
 
     <flow name="createUserInServiceNow" doc:name="createUserInServiceNow">
         <enricher source="#[payload]" target="#[flowVars['listOfUsersInServiceNow']]" doc:name="Message Enricher">
             <processor-chain doc:name="Processor Chain">
                 <custom-transformer class="org.mule.kicks.CreateGetRecords" doc:name="prepare query for deciding the upsert operation"/>
-                <servicenow:get-user-records config-ref="ServiceNow" doc:name="query user to be upserted"/>
+                <servicenow:get-user-records config-ref="ServiceNow" doc:name="query user to be upserted in ServiceNow"/>
             </processor-chain>
         </enricher>
         <choice doc:name="Choice">
             <when expression="#[listOfUsersInServiceNow.getGetRecordsResult().isEmpty()]">
-                <data-mapper:transform config-ref="pojo_to_pojo" doc:name="map WorkDay Worker to ServiceNow Insert"/>
+                <data-mapper:transform config-ref="pojo_to_pojo" doc:name="map workday Worker to servicenow Insert"/>
                 <servicenow:insert-user config-ref="ServiceNow" doc:name="insert User in ServiceNow"/>
             </when>
             <otherwise>
-                <data-mapper:transform config-ref="pojo_to_pojo_1" doc:name="map WorkDay Worker to ServiceNow Update"/>
-                <all doc:name="All">
-                    <processor-chain>
-                        <expression-component doc:name="add the ServiceNow Id to the Object to be updated"><![CDATA[payload.setSysId(listOfUsersInServiceNow.getGetRecordsResult().get(0).getSysId());]]></expression-component>
-                        <servicenow:update-user config-ref="ServiceNow" doc:name="update User in ServiceNow"/>
-                    </processor-chain>
-                    <processor-chain>
-                        <json:object-to-json-transformer doc:name="Object to JSON"/>
-                        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
-                    </processor-chain>
-                </all>
+                <data-mapper:transform config-ref="pojo_to_pojo_1" doc:name="map workday Worker to servicenow Update"/>
+                <expression-component doc:name="add the servicenow Id to the object to be updated"><![CDATA[payload.setSysId(listOfUsersInServiceNow.getGetRecordsResult().get(0).getSysId());
+payload.setGender(wdWorker.getWorkerData().getPersonalData().getGenderReference().getDescriptor());
+payload.setHomePhone(wdWorker.getWorkerData().getPersonalData().getContactData().getPhoneData().get(0).getFormattedPhone());]]></expression-component>
+                <servicenow:update-user config-ref="ServiceNow" doc:name="update User in servicenow"/>
             </otherwise>
         </choice>
         <json:object-to-json-transformer doc:name=" transform response to JSON"/>
