@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mule-project xmlns="http://www.mulesoft.com/tooling/project" runtimeId="org.mule.tooling.server.3.5.0.ee" schemaVersion="3.5.0.0">
-    <name>Workday employee to ServiceNow ticket</name>
-    <description></description>
+    <name>wday2snow-employee-one-way-sync</name>
+    <description/>
     <muleExtension name="ServiceNow" qualifier="org.mule.tooling.ui.contribution.servicenow"/>
     <muleExtension name="Workday Staffing" qualifier="org.mule.tooling.ui.contribution.wd-staffing"/>
     <muleExtension name="Workday Recruiting" qualifier="org.mule.tooling.ui.contribution.wd-recruiting"/>
