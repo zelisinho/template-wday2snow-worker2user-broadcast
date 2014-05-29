@@ -13,12 +13,13 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<mule.version>3.5.0-M4-RC1</mule.version>
- 		<!-- <mule.version>3.5.0-cascade</mule.version> -->
+		<mule.version>3.5.0</mule.version>
 		<eclipsePluginVersion>2.8</eclipsePluginVersion>
 		<jdkName>JavaSE-1.6</jdkName>
 		<jdk.version>1.6</jdk.version>
 		<junit.version>4.9</junit.version>
+		<munit.version>3.5-M2</munit.version>
+		<sfdc.version>5.4.3</sfdc.version>
 	</properties>
 
 	<build>
@@ -493,6 +494,39 @@
 			<version>${mule.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Munit -->
+		<dependency>
+			<groupId>org.mule.munit</groupId>
+			<artifactId>munit-runner</artifactId>
+			<version>${munit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.munit</groupId>
+			<artifactId>munit-common</artifactId>
+			<version>${munit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.munit</groupId>
+			<artifactId>munit-assert</artifactId>
+			<version>${munit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.munit</groupId>
+			<artifactId>munit-mock</artifactId>
+			<version>${munit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-interceptor-module</artifactId>
+			<version>${munit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>com.mulesoft.muleesb.transports</groupId>
 			<artifactId>mule-transport-jdbc-ee</artifactId>
@@ -508,7 +542,7 @@
 		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-module-sfdc</artifactId>
-			<version>5.4.5</version>
+			<version>${sfdc.version}</version>
 		</dependency>
 	</dependencies>
 
