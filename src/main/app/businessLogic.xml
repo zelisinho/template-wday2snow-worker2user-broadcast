@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:core="http://www.mulesoft.org/schema/mule/core"
+<mule xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:core="http://www.mulesoft.org/schema/mule/core"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
 	xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper"
 	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
@@ -16,10 +16,51 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd
 http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
-http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd-hr/current/mule-wd-hr.xsd">
 
-	<data-mapper:config name="pojo_to_pojo" transformationGraphPath="pojo_to_pojo.grf" doc:name="pojo_to_pojo" />
-    <data-mapper:config name="pojo_to_pojo_1" transformationGraphPath="pojo_to_pojo_1.grf" doc:name="pojo_to_pojo_1"/>
+    <data-mapper:config name="List_WorkerType__To_Map" transformationGraphPath="list_workertype__to_map.grf" doc:name="List_WorkerType__To_Map"/>
+    <batch:job name="broadcastUsers">
+        <batch:threading-profile poolExhaustedAction="WAIT"/>
+        <batch:process-records>
+            <batch:step name="GetServiceNowUserIfExists">
+                <enricher source="#[payload]" target="#[recordVars['listOfUsersInServiceNow']]" doc:name="store in flowVars['listOfUsersInServiceNow']">
+                    <processor-chain doc:name="Processor Chain">
+                        <servicenow:get-records config-ref="ServiceNow" type="SYS_USER" doc:name="query user to be upserted in ServiceNow">
+                            <servicenow:get-records-request>
+                                <servicenow:get-records-request key="firstName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getFirstName()]</servicenow:get-records-request>
+                                <servicenow:get-records-request key="lastName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getLastName()]</servicenow:get-records-request>
+                                <servicenow:get-records-request key="email">#[payload.workerData.getPersonalData().getContactData().getEmailAddressData().get(0).getEmailAddress()]</servicenow:get-records-request>
+                            </servicenow:get-records-request>
+                        </servicenow:get-records>
+                    </processor-chain>
+                </enricher>
+            </batch:step>
+            <batch:step name="UpsertUser" >
+                <data-mapper:transform config-ref="List_WorkerType__To_Map" doc:name="List&lt;WorkerType&gt; To Map"/>
+                <choice doc:name="Choice">
+                    <when expression="#[recordVars['listOfUsersInServiceNow'].getGetRecordsResult().isEmpty()]">
+                        <servicenow:insert config-ref="ServiceNow" type="SYS_USER" doc:name="insert User in ServiceNow">
+                            <servicenow:insert-request ref="#[payload]"/>
+                        </servicenow:insert>
+                    </when>
+                    <otherwise>
+<!--                         <data-mapper:transform config-ref="List_WorkerType__To_Map" doc:name="List&lt;WorkerType&gt; To Map"/> -->
+                        <expression-component doc:name="add the servicenow Id to the object to be updated"><![CDATA[payload.put('sysId', recordVars['listOfUsersInServiceNow'].getGetRecordsResult().get(0).getSysId());
+//payload.setGender(wdWorker.getWorkerData().getPersonalData().getGenderReference().getDescriptor());
+//payload.setHomePhone(wdWorker.getWorkerData().getPersonalData().getContactData().getPhoneData().get(0).getFormattedPhone());]]></expression-component>
+                        <servicenow:update config-ref="ServiceNow" type="SYS_USER" doc:name="update User in servicenow">
+                            <servicenow:update-request ref="#[payload]"/>
+                        </servicenow:update>
+                    </otherwise>
+                </choice>
+            </batch:step>
+        </batch:process-records>
+        <batch:on-complete>
+            <json:object-to-json-transformer doc:name=" transform response to JSON"/>
+            <logger level="INFO" doc:name="Logger" message="Batch completed: #[payload]"/>
+        </batch:on-complete>
+    </batch:job>
 
 	<!-- Commented until Jira EE-3866 (https://www.mulesoft.org/jira/browse/EE-3866) is solved -->
 	
@@ -42,28 +83,5 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 		</batch:on-complete>
 	</batch:job> -->
 
-    <flow name="createUserInServiceNow" doc:name="createUserInServiceNow">
-        <enricher source="#[payload]" target="#[flowVars['listOfUsersInServiceNow']]" doc:name="Message Enricher">
-            <processor-chain doc:name="Processor Chain">
-                <custom-transformer class="org.mule.kicks.CreateGetRecords" doc:name="prepare query for deciding the upsert operation"/>
-                <servicenow:get-user-records config-ref="ServiceNow" doc:name="query user to be upserted in ServiceNow"/>
-            </processor-chain>
-        </enricher>
-        <choice doc:name="Choice">
-            <when expression="#[listOfUsersInServiceNow.getGetRecordsResult().isEmpty()]">
-                <data-mapper:transform config-ref="pojo_to_pojo" doc:name="map workday Worker to servicenow Insert"/>
-                <servicenow:insert-user config-ref="ServiceNow" doc:name="insert User in ServiceNow"/>
-            </when>
-            <otherwise>
-                <data-mapper:transform config-ref="pojo_to_pojo_1" doc:name="map workday Worker to servicenow Update"/>
-                <expression-component doc:name="add the servicenow Id to the object to be updated"><![CDATA[payload.setSysId(listOfUsersInServiceNow.getGetRecordsResult().get(0).getSysId());
-payload.setGender(wdWorker.getWorkerData().getPersonalData().getGenderReference().getDescriptor());
-payload.setHomePhone(wdWorker.getWorkerData().getPersonalData().getContactData().getPhoneData().get(0).getFormattedPhone());]]></expression-component>
-                <servicenow:update-user config-ref="ServiceNow" doc:name="update User in servicenow"/>
-            </otherwise>
-        </choice>
-        <json:object-to-json-transformer doc:name=" transform response to JSON"/>
-        <logger message="#[payload]" level="INFO" doc:name="log record result"/>
-    </flow>
 
 </mule>

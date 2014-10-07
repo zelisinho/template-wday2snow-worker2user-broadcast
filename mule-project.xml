@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mule-project xmlns="http://www.mulesoft.com/tooling/project" runtimeId="org.mule.tooling.server.3.5.0.ee" schemaVersion="3.5.0.0">
     <name>template-wday2snow-employee-broadcast</name>
-    <description/>
-    <muleExtension name="ServiceNow" qualifier="org.mule.tooling.ui.contribution.servicenow"/>
-    <muleExtension name="Workday Staffing" qualifier="org.mule.tooling.ui.contribution.wd-staffing"/>
-    <muleExtension name="Workday Recruiting" qualifier="org.mule.tooling.ui.contribution.wd-recruiting"/>
-    <muleExtension name="Salesforce" qualifier="org.mule.tooling.ui.contribution.sfdc.3.5.0"/>
+    <description></description>
     <muleExtension name="Workday Human Resource" qualifier="org.mule.tooling.ui.contribution.wd-hr"/>
-    <muleExtension name="Workday Talent" qualifier="org.mule.tooling.ui.contribution.wd-talent"/>
+    <muleExtension name="ServiceNow" qualifier="org.mule.tooling.ui.contribution.servicenow.3.5.0"/>
 </mule-project>

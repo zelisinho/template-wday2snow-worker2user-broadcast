@@ -34,7 +34,6 @@ public class WorkersRequest {
 
 		WorkerRequestCriteriaType workerRequestCriteria = new WorkerRequestCriteriaType();
 		workerRequestCriteria.getTransactionLogCriteriaData().add(transactionLogCriteria);
-
 		GetWorkersRequestType getWorkersType = new GetWorkersRequestType();
 		getWorkersType.setRequestCriteria(workerRequestCriteria);
 

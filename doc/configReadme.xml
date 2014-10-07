@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<configuration>
+	<placeholders>
+		<placeholder id="template_name">
+		Workday Worker to ServiceNow User Broadcast
+		</placeholder>
+	</placeholders>
+	<sections>
+		<section id="use_case">
+			<![CDATA[
+As a Workday admin I want to broadcast all modified employee entries to Service Now as user entries.			
+
+The data is processed as follows:
+1. Workday is polled in intervals for new modifications of employees
+2. Service Now is queried for existing entries
+3. Either a new user is created or existing is updated 
+		
+			]]>
+		</section>
+		<section id="considerations">
+			<![CDATA[There are no special considerations for this template.  ]]>
+		</section>
+		<section id="application_configuration">
+			<![CDATA[### Application configuration
++ poll.frequencyMillis `10000`
++ poll.startDelayMillis `500`
++ watermark.default.expression `#[groovy: new Date(System.currentTimeMillis() - 10000)]`
+
+#### WorkDay Connector configuration for company A
++ wday.user `user1@mulesoft_pt1`
++ wday.password `ExamplePassword565`
++ wday.endpoint `https://services1.workday.com/ccx/service/acme/Human_Resources/v20`
+
+#### ServiceNow Connector configuration for company B
++ snow.user `snow_user1`
++ snow.password `ExamplePassword881`
++ snow.endpoint `https://instance.service-now.com`
+		  ]]>
+		</section>
+		<section id="api_calls">
+			<![CDATA[There are no special considerations regarding API calls.  ]]>
+		</section>
+		<section id="default_endpoints_xml">
+		<![CDATA[
+This file should contain every inbound endpoint of your integration app. It is intended to contain the application API.
+In this particular template, this file contains a poll inbound endpoints that query Workday for updates using watermark.
+]]>
+		</section>
+		<section id="default_business_logic_xml">
+		<![CDATA[
+This file holds the functional aspect of the template (points 2. to 3. described in the [template overview](#templateoverview)). Its main component is a [*Batch job*][8], and it includes *steps* for executing the broadcast operation from Workday to Service.
+]]>
+	</section>
+	</sections>
+</configuration>
