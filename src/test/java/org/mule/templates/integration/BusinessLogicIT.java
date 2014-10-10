@@ -45,14 +45,14 @@ import com.workday.staffing.TerminateEventDataType;
  */
 public class BusinessLogicIT extends AbstractTemplateTestCase {
 
-	private static final String PHONE_NUMBER = "650-232-2323";
-	private static final String STREET = "999 Main St";
-	private static final String CITY = "San Francisco";
 	private static final String TEMPLATE_PREFIX = "wday2snow-employee-broadcast";
 	private static final long TIMEOUT_MILLIS = 30000;
 	private static final long DELAY_MILLIS = 500;
 	protected static final String PATH_TO_TEST_PROPERTIES = "./src/test/resources/mule.test.properties";
 	protected static final int TIMEOUT_SEC = 60;
+	private static final String PHONE_NUMBER = "650-232-2323";
+	private static final String STREET = "999 Main St";
+	private static final String CITY = "San Francisco";
 	private static final String LAST_NAME = "Willis1";
 	private BatchTestHelper helper;
 	

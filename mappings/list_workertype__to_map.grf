@@ -5848,7 +5848,6 @@
 <Field __index="2507" __sourcePath="{}/list/workerReference/descriptor" containerType="SINGLE" label="descriptor" name="descriptor_111" type="string"/>
 <Field __artificialType="XPATH" __xpath="{=}/workerData/personalData/contactData/emailAddressData[last()]/emailAddress" containerType="SINGLE" label="EmailRule" name="EmailRule" type="string"/>
 <Field __artificialType="XPATH" __xpath="{=}/workerData/personalData/contactData/phoneData[last()]/formattedPhone" containerType="SINGLE" label="PhoneRule" name="PhoneRule" type="string"/>
-<Field __artificialType="XPATH" __xpath="{=}/workerReference/ID[last()]/value" containerType="SINGLE" label="EmployeeIdRule" name="EmployeeIdRule" type="string"/>
 <Field __artificialType="XPATH" __xpath="{=}/workerData/personalData/contactData/addressData[last()]/postalCode" containerType="SINGLE" label="ZipCodeRule" name="ZipCodeRule" type="string"/>
 <Field __artificialType="XPATH" __xpath="{=}/workerData/personalData/contactData/addressData[last()]/addressLineData[last()]/value" containerType="SINGLE" label="StreetRule" name="StreetRule" type="string"/>
 <Field __artificialType="XPATH" __xpath="{=}/workerData/personalData/contactData/addressData[last()]/countryReference/ID[2]/value" containerType="SINGLE" label="CountryRule" name="CountryRule" type="string"/>
@@ -7391,7 +7390,6 @@
   <Mapping cloverField="descriptor_111" trim="true" xpath="workerReference/descriptor"/>
   <Mapping cloverField="EmailRule" trim="true" xpath="workerData/personalData/contactData/emailAddressData[last()]/emailAddress"/>
   <Mapping cloverField="PhoneRule" trim="true" xpath="workerData/personalData/contactData/phoneData[last()]/formattedPhone"/>
-  <Mapping cloverField="EmployeeIdRule" trim="true" xpath="workerReference/ID[last()]/value"/>
   <Mapping cloverField="ZipCodeRule" trim="true" xpath="workerData/personalData/contactData/addressData[last()]/postalCode"/>
   <Mapping cloverField="StreetRule" trim="true" xpath="workerData/personalData/contactData/addressData[last()]/addressLineData[last()]/value"/>
   <Mapping cloverField="CountryRule" trim="true" xpath="workerData/personalData/contactData/addressData[last()]/countryReference/ID[2]/value"/>
@@ -10947,7 +10945,6 @@ output.middleName = input.middleName;
 output.userName = input.userName;
 output.email = input.EmailRule;
 output.homePhone = input.PhoneRule;
-output.employeeNumber = input.EmployeeIdRule;
 output.title = input.descriptor_89;
 output.zip = input.ZipCodeRule;
 output.street = input.StreetRule;

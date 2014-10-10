@@ -25,15 +25,14 @@ http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd
         <batch:process-records>
             <batch:step name="GetServiceNowUserIfExists">
                 <enricher source="#[payload]" target="#[recordVars['listOfUsersInServiceNow']]" doc:name="store in flowVars['listOfUsersInServiceNow']">
-                    <processor-chain doc:name="Processor Chain">
-                        <servicenow:get-records config-ref="ServiceNow" type="SYS_USER" doc:name="query user to be upserted in ServiceNow">
-                            <servicenow:get-records-request>
-                                <servicenow:get-records-request key="firstName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getFirstName()]</servicenow:get-records-request>
-                                <servicenow:get-records-request key="lastName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getLastName()]</servicenow:get-records-request>
-                                <servicenow:get-records-request key="email">#[payload.workerData.getPersonalData().getContactData().getEmailAddressData().get(0).getEmailAddress()]</servicenow:get-records-request>
-                            </servicenow:get-records-request>
-                        </servicenow:get-records>
-                    </processor-chain>
+                    <servicenow:get-records config-ref="ServiceNow" type="SYS_USER" doc:name="query user to be upserted in ServiceNow">
+                        <servicenow:get-records-request>
+                            <servicenow:get-records-request key="firstName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getFirstName()]</servicenow:get-records-request>
+                            <servicenow:get-records-request key="lastName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getLastName()]</servicenow:get-records-request>
+                            <servicenow:get-records-request key="email">#[payload.workerData.getPersonalData().getContactData().getEmailAddressData().get(0).getEmailAddress()]</servicenow:get-records-request>
+                        </servicenow:get-records-request>
+                    </servicenow:get-records>
+
                 </enricher>
             </batch:step>
             <batch:step name="UpsertUser" >

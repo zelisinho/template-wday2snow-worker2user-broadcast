@@ -36,7 +36,7 @@ Here you should not:
 			<watermark variable="lastQueryDate" default-expression="${watermark.defaultExpression}"
 				update-expression="#[ new java.util.Date() ]" />
 			<processor-chain doc:name="query Workers and set collection">
-                <logger message="Fetching Workday updates..." level="INFO" doc:name="log 'Fetching workday updates...'"/>
+                <logger message="Fetching Workday updates...#[new java.util.Date()]" level="INFO" doc:name="log 'Fetching workday updates...'"/>
 				<wd-hr:get-workers config-ref="Workday_Human_Resource"
 					doc:name="get Workers from Workday Human Resource"
 					workersRequest-ref="#[org.mule.kicks.WorkersRequest.create(lastQueryDate)]"></wd-hr:get-workers>
