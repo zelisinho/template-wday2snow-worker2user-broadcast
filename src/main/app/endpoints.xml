@@ -39,7 +39,7 @@ Here you should not:
                 <logger message="Fetching Workday updates...#[new java.util.Date()]" level="INFO" doc:name="log 'Fetching workday updates...'"/>
 				<wd-hr:get-workers config-ref="Workday_Human_Resource"
 					doc:name="get Workers from Workday Human Resource"
-					workersRequest-ref="#[org.mule.kicks.WorkersRequest.create(lastQueryDate)]"></wd-hr:get-workers>
+					workersRequest-ref="#[org.mule.templates.WorkersRequest.create(lastQueryDate)]"></wd-hr:get-workers>
 
 				<set-payload value="#[payload.responseData == null ? null : payload.responseData.worker]"
 					doc:name="set to Worker collection" />

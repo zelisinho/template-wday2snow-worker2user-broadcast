@@ -1,4 +1,4 @@
-package org.mule.kicks;
+package org.mule.templates;
 
 import java.text.ParseException;
 import java.util.Date;
