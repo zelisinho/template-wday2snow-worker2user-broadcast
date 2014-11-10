@@ -59,26 +59,4 @@ http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd
         </batch:on-complete>
     </batch:job>
 
-	<!-- Commented until Jira EE-3866 (https://www.mulesoft.org/jira/browse/EE-3866) is solved -->
-	
-<!-- 	<batch:job name="businessLogicBatch1">
-		<batch:threading-profile poolExhaustedAction="WAIT" />
-        <batch:input>
-            <logger message="Starting batch job..." level="INFO" doc:name="Debug Logger"/>
-        </batch:input>
-		<batch:process-records>
-			<batch:step name="foreachWorkerInWorkdayCreateUserInServiceNow">
-                <logger message="Hola Mariano!" level="INFO" doc:name="Debug Logger"/>
-				<flow-ref name="createUserInServiceNow" doc:name="call createUserInServiceNow" />
-			</batch:step>
-		</batch:process-records>
-		<batch:on-complete>
-			<json:object-to-json-transformer
-				doc:name="transform BatchJobInstance to JSON" />
-			<logger level="INFO" doc:name="log 'Migration process has finished'"
-				message="Migration process has finished: #[payload]" />
-		</batch:on-complete>
-	</batch:job> -->
-
-
 </mule>
