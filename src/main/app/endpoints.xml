@@ -49,8 +49,7 @@ Here you should not:
 
         <logger level="INFO" doc:name="log worker's name" message="#[groovy: payload.collect { it.getWorkerData().getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getFirstName() +  ' '+ it.getWorkerData().getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getLastName() } ]"/>
         <batch:execute name="broadcastUsers" doc:name="Batch Execute"/>
-
-		<!-- <batch:execute name="businessLogicBatch1" doc:name="trigger Batch Execute" /> -->
+		
 	</flow>
 
 </mule>

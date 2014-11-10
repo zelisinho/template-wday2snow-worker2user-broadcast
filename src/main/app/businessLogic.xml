@@ -45,9 +45,7 @@ http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd
                     </when>
                     <otherwise>
 <!--                         <data-mapper:transform config-ref="List_WorkerType__To_Map" doc:name="List&lt;WorkerType&gt; To Map"/> -->
-                        <expression-component doc:name="add the servicenow Id to the object to be updated"><![CDATA[payload.put('sysId', recordVars['listOfUsersInServiceNow'].getGetRecordsResult().get(0).getSysId());
-//payload.setGender(wdWorker.getWorkerData().getPersonalData().getGenderReference().getDescriptor());
-//payload.setHomePhone(wdWorker.getWorkerData().getPersonalData().getContactData().getPhoneData().get(0).getFormattedPhone());]]></expression-component>
+                        <expression-component doc:name="add the servicenow Id to the object to be updated"><![CDATA[payload.put('sysId', recordVars['listOfUsersInServiceNow'].getGetRecordsResult().get(0).getSysId());]]></expression-component>
                         <servicenow:update config-ref="ServiceNow" type="SYS_USER" doc:name="update User in servicenow">
                             <servicenow:update-request ref="#[payload]"/>
                         </servicenow:update>
