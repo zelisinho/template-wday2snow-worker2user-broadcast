@@ -4,7 +4,7 @@
 	xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr" xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.0"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.2"
 	xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow"
 	xmlns:wd-staffing="http://www.mulesoft.org/schema/mule/wd-staffing"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -16,15 +16,10 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd">
 
-	<!-- This is the main configuration files, you should place here all the 
-		Connectors configuration an declarations -->
-
 	<context:property-placeholder
 		location="common.properties, mule.${mule.env}.properties" />
 
-	<servicenow:config name="ServiceNow" username="${snow.user}"
-		password="${snow.password}" serviceEndpoint="${snow.endpoint}"
-		doc:name="ServiceNow">
+	<servicenow:config name="ServiceNow" username="${snow.user}" password="${snow.password}" serviceEndpoint="${snow.endpoint}" doc:name="ServiceNow">
 		<servicenow:connection-pooling-profile
 			initialisationPolicy="INITIALISE_ONE" exhaustedAction="WHEN_EXHAUSTED_GROW" />
 		<reconnect />

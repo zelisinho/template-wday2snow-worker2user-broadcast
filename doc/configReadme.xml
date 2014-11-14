@@ -21,7 +21,7 @@ The data is processed as follows:
 			<![CDATA[There are no special considerations for this template.  ]]>
 		</section>
 		<section id="application_configuration">
-			<![CDATA[### Application configuration
+			<![CDATA[
 + poll.frequencyMillis `10000`
 + poll.startDelayMillis `500`
 + watermark.default.expression `#[groovy: new Date(System.currentTimeMillis() - 10000)]`

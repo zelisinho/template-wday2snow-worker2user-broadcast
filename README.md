@@ -55,6 +55,7 @@ There are no particular considerations for this Anypoint Template regarding Serv
 
 There are no particular considerations for this Anypoint Template regarding Workday as data origin.
 
+
 # Run it! <a name="runit"/>
 Simple steps to get Workday Worker to ServiceNow User Broadcast running.
 
@@ -105,7 +106,6 @@ Mule Studio provides you with really easy way to deploy your Template directly t
 
 ## Properties to be configured (With examples) <a name="propertiestobeconfigured"/>
 In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. Detail list with examples:
-### Application configuration
 ### Application configuration
 + poll.frequencyMillis `10000`
 + poll.startDelayMillis `500`

@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.7</version>
 	</parent>
 
 	<artifactId>template-wday2snow-employee-broadcast</artifactId>
@@ -15,7 +15,8 @@
 	<name>template-wday2snow-employee-broadcast Anypoint Template Project</name>
 
 	<properties>
-
+		<workday.version>4.0.1</workday.version>
+		<snow.version>4.0.0</snow.version>
 	</properties>
 
 	<build>
@@ -40,12 +41,12 @@
 		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-module-workday</artifactId>
-			<version>3.0.0</version>
+			<version>${workday.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-service-now</artifactId>
-			<version>2.0.0</version>
+			<artifactId>mule-module-servicenow</artifactId>
+			<version>${snow.version}</version>
 		</dependency>
 	<dependency>
             <groupId>com.mulesoft.muleesb.modules</groupId>
@@ -64,12 +65,7 @@
             <artifactId>mule-module-json</artifactId>
             <version>${mule.version}</version>
             <scope>provided</scope>
-        </dependency>
-    <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-servicenow</artifactId>
-            <version>3.0.0</version>
-        </dependency>
+        </dependency>    
     <dependency>
             <groupId>org.mule.transports</groupId>
             <artifactId>mule-transport-http</artifactId>

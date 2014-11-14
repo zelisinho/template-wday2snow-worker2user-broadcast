@@ -7,7 +7,7 @@
 	xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow"
 	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.0"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
@@ -27,9 +27,9 @@ http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd
                 <enricher source="#[payload]" target="#[recordVars['listOfUsersInServiceNow']]" doc:name="store in flowVars['listOfUsersInServiceNow']">
                     <servicenow:get-records config-ref="ServiceNow" type="SYS_USER" doc:name="query user to be upserted in ServiceNow">
                         <servicenow:get-records-request>
-                            <servicenow:get-records-request key="firstName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getFirstName()]</servicenow:get-records-request>
                             <servicenow:get-records-request key="lastName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getLastName()]</servicenow:get-records-request>
                             <servicenow:get-records-request key="email">#[payload.workerData.getPersonalData().getContactData().getEmailAddressData().get(0).getEmailAddress()]</servicenow:get-records-request>
+                            <servicenow:get-records-request key="firstName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getFirstName()]</servicenow:get-records-request>
                         </servicenow:get-records-request>
                     </servicenow:get-records>
 
@@ -44,7 +44,6 @@ http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd
                         </servicenow:insert>
                     </when>
                     <otherwise>
-<!--                         <data-mapper:transform config-ref="List_WorkerType__To_Map" doc:name="List&lt;WorkerType&gt; To Map"/> -->
                         <expression-component doc:name="add the servicenow Id to the object to be updated"><![CDATA[payload.put('sysId', recordVars['listOfUsersInServiceNow'].getGetRecordsResult().get(0).getSysId());]]></expression-component>
                         <servicenow:update config-ref="ServiceNow" type="SYS_USER" doc:name="update User in servicenow">
                             <servicenow:update-request ref="#[payload]"/>

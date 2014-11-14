@@ -24,7 +24,7 @@ public class WorkersRequest {
 		EffectiveAndUpdatedDateTimeDataType dateRangeData = new EffectiveAndUpdatedDateTimeDataType();
 		dateRangeData.setUpdatedFrom(xmlDate(startDate));
 		dateRangeData.setUpdatedThrough(xmlDate(new Date()));
-
+		
 		/*
 		 * Set event type criteria filter
 		 */
