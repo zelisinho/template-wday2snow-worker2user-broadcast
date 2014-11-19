@@ -104,7 +104,7 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
         
 	@Test
     public void testMainFlow() throws Exception {
-		
+		Thread.sleep(10000);
 		runSchedulersOnce(POLL_FLOW_NAME);
 		waitForPollToRun();
 		helper.awaitJobTermination(TIMEOUT_MILLIS, DELAY_MILLIS);
