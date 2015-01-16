@@ -38,12 +38,12 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 	private static final String PHONE_NUMBER = "232-2323";
 	private static final String STREET = "999 Main St";
 	private static final String CITY = "San Francisco";
-	private static final String LAST_NAME = "Vukovic1";
-	private static final String FIRST_NAME = "Darko1";
+	private static final String LAST_NAME = "Test1";
+	private static final String FIRST_NAME = "Test1";
 	private BatchTestHelper helper;
 	private Map<String, String> user = new HashMap<String, String>();	
 	private static String WORKDAY_ID;	
-    private String EMAIL = "drvukovic25334@live.com";	
+    private String EMAIL = "drvukovic332211@live.com";	
     private String SNOW_ID;
     
     @BeforeClass
