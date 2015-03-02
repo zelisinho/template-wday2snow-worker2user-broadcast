@@ -6,18 +6,13 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.0.7</version>
+		<version>1.0.16</version>
 	</parent>
 
 	<artifactId>template-wday2snow-employee-broadcast</artifactId>
 	<packaging>mule</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>template-wday2snow-employee-broadcast Anypoint Template Project</name>
-
-	<properties>
-		<workday.version>4.0.1</workday.version>
-		<snow.version>4.0.0</snow.version>
-	</properties>
 
 	<build>
 		<plugins>
@@ -39,10 +34,16 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-workday</artifactId>
-			<version>${workday.version}</version>
-		</dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-workday-humanresources</artifactId>
+            <version>${wday.hr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-workday-staffing</artifactId>
+            <version>${wday.hr.version}</version>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-module-servicenow</artifactId>
