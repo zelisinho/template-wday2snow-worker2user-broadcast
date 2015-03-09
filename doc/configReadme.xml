@@ -8,10 +8,10 @@
 	<sections>
 		<section id="use_case">
 			<![CDATA[
-As a Workday admin I want to broadcast all modified employee entries to Service Now as user entries.			
+As a Workday admin I want to broadcast all modified worker entries to Service Now as user entries.			
 
 The data is processed as follows:
-1. Workday is polled in intervals for new modifications of employees
+1. Workday is polled in intervals for new modifications of workers
 2. Service Now is queried for existing entries
 3. Either a new user is created or existing is updated 
 		

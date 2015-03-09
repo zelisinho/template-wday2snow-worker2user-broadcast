@@ -26,10 +26,10 @@ Note that using this template is subject to the conditions of this [License Agre
 Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
 # Use Case <a name="usecase"/>
-As a Workday admin I want to broadcast all modified employee entries to Service Now as user entries.			
+As a Workday admin I want to broadcast all modified worker entries to Service Now as user entries.			
 
 The data is processed as follows:
-1. Workday is polled in intervals for new modifications of employees
+1. Workday is polled in intervals for new modifications of workers
 2. Service Now is queried for existing entries
 3. Either a new user is created or existing is updated
 

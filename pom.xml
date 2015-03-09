@@ -9,10 +9,10 @@
 		<version>1.0.16</version>
 	</parent>
 
-	<artifactId>template-wday2snow-employee-broadcast</artifactId>
+	<artifactId>template-wday2snow-worker2user-broadcast</artifactId>
 	<packaging>mule</packaging>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>template-wday2snow-employee-broadcast Anypoint Template Project</name>
+	<name>template-wday2snow-worker2user-broadcast Anypoint Template Project</name>
 
 	<build>
 		<plugins>
@@ -90,8 +90,8 @@
 		</repository>
 	</repositories>	
 	<scm>
-		<connection>scm:git:https://github.com/mulesoft/template-wday2snow-employee-broadcast.git</connection>
-		<developerConnection>scm:git:https://github.com/mulesoft/template-wday2snow-employee-broadcast.git</developerConnection>
-		<url>http://github.com/mulesoft/template-wday2snow-employee-broadcast</url>
+		<connection>scm:git:https://github.com/mulesoft/template-wday2snow-worker2user-broadcast.git</connection>
+		<developerConnection>scm:git:https://github.com/mulesoft/template-wday2snow-worker2user-broadcast.git</developerConnection>
+		<url>http://github.com/mulesoft/template-wday2snow-worker2user-broadcast</url>
 	</scm>
 </project>
