@@ -7,7 +7,7 @@
 	xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow"
 	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.0"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.2"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
@@ -19,7 +19,6 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd-hr/current/mule-wd-hr.xsd">
 
-    <data-mapper:config name="List_WorkerType__To_Map" transformationGraphPath="list_workertype__to_map.grf" doc:name="List_WorkerType__To_Map"/>
     <batch:job name="broadcastUsers">
         <batch:threading-profile poolExhaustedAction="WAIT"/>
         <batch:process-records>
@@ -27,16 +26,18 @@ http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd
                 <enricher source="#[payload]" target="#[recordVars['listOfUsersInServiceNow']]" doc:name="store in flowVars['listOfUsersInServiceNow']">
                     <servicenow:get-records config-ref="ServiceNow" type="SYS_USER" doc:name="query user to be upserted in ServiceNow">
                         <servicenow:get-records-request>
-                            <servicenow:get-records-request key="lastName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getLastName()]</servicenow:get-records-request>
-                            <servicenow:get-records-request key="email">#[payload.workerData.getPersonalData().getContactData().getEmailAddressData().get(0).getEmailAddress()]</servicenow:get-records-request>
-                            <servicenow:get-records-request key="firstName">#[payload.workerData.getPersonalData().getNameData().getPreferredNameData().getNameDetailData().getFirstName()]</servicenow:get-records-request>
+                            <servicenow:get-records-request key="lastName">#[payload['lastName']]</servicenow:get-records-request>
+                            <servicenow:get-records-request key="email">#[payload['emailAddress']]</servicenow:get-records-request>
+                            <servicenow:get-records-request key="firstName">#[payload['firstName']]</servicenow:get-records-request>
                         </servicenow:get-records-request>
                     </servicenow:get-records>
 
+
                 </enricher>
+
             </batch:step>
             <batch:step name="UpsertUser" >
-                <data-mapper:transform config-ref="List_WorkerType__To_Map" doc:name="List&lt;WorkerType&gt; To Map"/>
+
                 <choice doc:name="Choice">
                     <when expression="#[recordVars['listOfUsersInServiceNow'].getGetRecordsResult().isEmpty()]">
                         <servicenow:insert config-ref="ServiceNow" type="SYS_USER" doc:name="insert User in ServiceNow">

@@ -56,6 +56,10 @@ There are no particular considerations for this Anypoint Template regarding Serv
 There are no particular considerations for this Anypoint Template regarding Workday as data origin.
 
 
+
+
+
+
 # Run it! <a name="runit"/>
 Simple steps to get Workday Worker to ServiceNow User Broadcast running.
 
@@ -109,7 +113,7 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 ### Application configuration
 + poll.frequencyMillis `10000`
 + poll.startDelayMillis `500`
-+ watermark.default.expression `#[groovy: new Date(System.currentTimeMillis() - 10000)]`
++ watermark.default.expression `#[groovy: new GregorianCalendar(2015, Calendar.MAY, 25, 14, 00, 00)]`
 
 #### WorkDay Connector configuration for company A
 + wday.user `user1@mulesoft_pt1`

@@ -7,6 +7,7 @@
 package org.mule.templates;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -21,16 +22,19 @@ import com.workday.hr.WorkerRequestCriteriaType;
 
 public class WorkersRequest {
 
-	public static GetWorkersRequestType create(Date startDate) throws ParseException, DatatypeConfigurationException {
+	public static GetWorkersRequestType create(GregorianCalendar startDate) throws ParseException, DatatypeConfigurationException {
 
 		/*
 		 * Set data range for events
 		 */
 
 		EffectiveAndUpdatedDateTimeDataType dateRangeData = new EffectiveAndUpdatedDateTimeDataType();
-		dateRangeData.setUpdatedFrom(xmlDate(startDate));
-		dateRangeData.setUpdatedThrough(xmlDate(new Date()));
-		
+		GregorianCalendar current = new GregorianCalendar();
+        current.add(Calendar.SECOND, -1);
+                                
+		dateRangeData.setUpdatedFrom(getXMLGregorianCalendar(startDate));
+        dateRangeData.setUpdatedThrough(getXMLGregorianCalendar(current));
+        
 		/*
 		 * Set event type criteria filter
 		 */
@@ -50,6 +54,10 @@ public class WorkersRequest {
 		GregorianCalendar gregorianCalendar = (GregorianCalendar) GregorianCalendar.getInstance();
 		gregorianCalendar.setTime(date);
 		return DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+	}
+	
+	private static XMLGregorianCalendar getXMLGregorianCalendar(GregorianCalendar date) throws DatatypeConfigurationException {
+		return DatatypeFactory.newInstance().newXMLGregorianCalendar(date);
 	}
 
 }

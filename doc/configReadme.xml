@@ -24,7 +24,7 @@ The data is processed as follows:
 			<![CDATA[
 + poll.frequencyMillis `10000`
 + poll.startDelayMillis `500`
-+ watermark.default.expression `#[groovy: new Date(System.currentTimeMillis() - 10000)]`
++ watermark.default.expression `#[groovy: new GregorianCalendar(2015, Calendar.MAY, 25, 14, 00, 00)]`
 
 #### WorkDay Connector configuration for company A
 + wday.user `user1@mulesoft_pt1`
