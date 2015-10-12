@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr"
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" 
+	xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr"
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
 	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" 
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.2"
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd-hr/current/mule-wd-hr.xsd
-http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
-    <data-mapper:config name="GetWorkersResponseType_To_List_Map_" transformationGraphPath="getworkersresponsetype_to_list_map_.grf" doc:name="GetWorkersResponseType_To_List_Map_"/>
-    <data-mapper:config name="GetWorkersResponseType_To_List_Map__1" transformationGraphPath="getworkersresponsetype_to_list_map__1.grf" doc:name="GetWorkersResponseType_To_List_Map__1"/>
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
 
 	<!-- In this file you should declare all inbound endpoints of your application -->
 
@@ -29,26 +29,75 @@ Here you should not:
 		<poll doc:name="fireup Worker synchronization">
 			<fixed-frequency-scheduler frequency="${poll.frequencyMillis}"
 				startDelay="${poll.startDelayMillis}" />
-			<watermark variable="lastQueryDate" default-expression="${watermark.defaultExpression}" selector="FIRST" selector-expression="#[payload.LastModifiedDate]"/>
+			<watermark variable="lastQueryDate" default-expression="${watermark.defaultExpression}"  />
 			<processor-chain doc:name="query Workers and set collection">
-                <logger message="Fetching Workday updates...#[new java.util.Date()]" level="INFO" doc:name="log 'Fetching workday updates...'"/>
-				<wd-hr:get-workers config-ref="Workday_Human_Resource"
-					doc:name="get Workers from Workday Human Resource"
-					workersRequest-ref="#[org.mule.templates.WorkersRequest.create(lastQueryDate)]"></wd-hr:get-workers>
+                <logger message="Fetching Workday updates...#[flowVars.lastQueryDate.getTime()]" level="INFO" doc:name="log 'Fetching workday updates...'"/>
+                <dw:transform-message doc:name="Create GetWorkersRequestType">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	requestCriteria: {
+		excludeInactiveWorkers		: true,
+		excludeContingentWorkers	: false,
+		excludeEmployees			: false,
+		transactionLogCriteriaData: [
+			{
+				transactionDateRangeData: {
+					updatedFrom		: flowVars.lastQueryDate,
+					updatedThrough	: now - |PT6S|
+				}
+			}
+		]
+	},
+	
+	responseGroup: {
+		includeRoles				: false,
+		includePersonalInformation	: true,
+		includeOrganizations		: false, 
+		includeEmploymentInformation: false,
+		includeReference			: false,
+		includeTransactionLogData	: false
+	}
 
-				<data-mapper:transform config-ref="GetWorkersResponseType_To_List_Map_" doc:name="GetWorkersResponseType To List&lt;Map&gt;">
-                    <data-mapper:input-arguments>
-                        <data-mapper:input-argument key="UpdatedThrough">#[payload.getRequestCriteria().getTransactionLogCriteriaData()[0].getTransactionDateRangeData().getUpdatedThrough()]</data-mapper:input-argument>
-                    </data-mapper:input-arguments>
-                    
-                </data-mapper:transform>
+} as :object {class: "com.workday.hr.GetWorkersRequestType"}
+]]></dw:set-payload>
+                </dw:transform-message>
+				<wd-hr:get-workers config-ref="Workday_Human_Resource" doc:name="get Workers from Workday Human Resource"></wd-hr:get-workers>
+                <dw:transform-message doc:name="GetWorkersResponseType to List&lt;Map&gt;">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.responseData.worker map {
+	name        : "",
+	active      : true,
+	firstName   : $.workerData.personalData.nameData.legalNameData.nameDetailData.firstName,
+	lastName    : $.workerData.personalData.nameData.legalNameData.nameDetailData.lastName,
+	middleName  : $.workerData.personalData.nameData.legalNameData.nameDetailData.middleName,
+	userName    : $.workerData.userAccountData.userName,
+	email       : $.workerData.personalData.contactData.emailAddressData[-1].emailAddress,
+	homePhone   : $.workerData.personalData.contactData.phoneData[-1].formattedPhone,
+	title       : $.workerData.personalData.nameData.preferredNameData.nameDetailData.prefixData.salutationReference.descriptor,
+	"zip"       : $.workerData.personalData.contactData.addressData[-1].postalCode,
+	street      : $.workerData.personalData.contactData.addressData[-1].addressLineData[-1].value,
+	country     : $.workerData.personalData.contactData.addressData[-1].countryReference.ID[1].value,
+	city        : $.workerData.personalData.contactData.addressData[-1].municipality,
+	state       : $.workerData.personalData.contactData.addressData[-1].countryRegionReference[-1].ID[-1].value
+} unless (payload.responseData is :null) otherwise []]]></dw:set-payload>
+                    <dw:set-variable variableName="lastQueryDate"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.requestCriteria.transactionLogCriteriaData[0].transactionDateRangeData.updatedThrough]]></dw:set-variable>
+                </dw:transform-message>
 
 			</processor-chain>
 		</poll>
+        <expression-filter expression="#[payload.size() &gt; 0]" doc:name="Filter empty result set"/>
 
 
         <logger level="INFO" doc:name="log worker's name" message="Workday workers: #[payload]"/>
-        <batch:execute name="broadcastUsers" doc:name="Batch Execute"/>
+        <batch:execute name="broadcastUsers" doc:name="execute broadcastUsers batch"/>
+
 		
 	</flow>
 
