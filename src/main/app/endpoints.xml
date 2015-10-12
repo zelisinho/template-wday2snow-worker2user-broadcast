@@ -45,7 +45,7 @@ Here you should not:
 			{
 				transactionDateRangeData: {
 					updatedFrom		: flowVars.lastQueryDate,
-					updatedThrough	: now - |PT6S|
+					updatedThrough	: now - |PT10S|
 				}
 			}
 		]
@@ -73,16 +73,16 @@ payload.responseData.worker map {
 	active      : true,
 	firstName   : $.workerData.personalData.nameData.legalNameData.nameDetailData.firstName,
 	lastName    : $.workerData.personalData.nameData.legalNameData.nameDetailData.lastName,
-	middleName  : $.workerData.personalData.nameData.legalNameData.nameDetailData.middleName,
-	userName    : $.workerData.userAccountData.userName,
-	email       : $.workerData.personalData.contactData.emailAddressData[-1].emailAddress,
-	homePhone   : $.workerData.personalData.contactData.phoneData[-1].formattedPhone,
-	title       : $.workerData.personalData.nameData.preferredNameData.nameDetailData.prefixData.salutationReference.descriptor,
-	"zip"       : $.workerData.personalData.contactData.addressData[-1].postalCode,
-	street      : $.workerData.personalData.contactData.addressData[-1].addressLineData[-1].value,
-	country     : $.workerData.personalData.contactData.addressData[-1].countryReference.ID[1].value,
-	city        : $.workerData.personalData.contactData.addressData[-1].municipality,
-	state       : $.workerData.personalData.contactData.addressData[-1].countryRegionReference[-1].ID[-1].value
+	middleName  : $.workerData.personalData.nameData.legalNameData.nameDetailData.middleName default null,
+	userName    : $.workerData.userAccountData.userName default null,
+	email       : $.workerData.personalData.contactData.emailAddressData[-1].emailAddress when $.workerData.personalData.contactData.emailAddressData != null otherwise null,
+	homePhone   : $.workerData.personalData.contactData.phoneData[-1].formattedPhone when $.workerData.personalData.contactData.phoneData != null otherwise null,
+	title       : $.workerData.personalData.nameData.preferredNameData.nameDetailData.prefixData.salutationReference.descriptor default null,
+	"zip"       : $.workerData.personalData.contactData.addressData[-1].postalCode when $.workerData.personalData.contactData.addressData != null otherwise null,
+	street      : $.workerData.personalData.contactData.addressData[-1].addressLineData[-1].value when $.workerData.personalData.contactData.addressData != null otherwise null,
+	country     : $.workerData.personalData.contactData.addressData[-1].countryReference.ID[1].value when $.workerData.personalData.contactData.addressData != null otherwise null,
+	city        : $.workerData.personalData.contactData.addressData[-1].municipality when $.workerData.personalData.contactData.addressData != null otherwise null,
+	state       : $.workerData.personalData.contactData.addressData[-1].countryRegionReference.ID[-1].value when $.workerData.personalData.contactData.addressData != null otherwise null
 } unless (payload.responseData is :null) otherwise []]]></dw:set-payload>
                     <dw:set-variable variableName="lastQueryDate"><![CDATA[%dw 1.0
 %output application/java
