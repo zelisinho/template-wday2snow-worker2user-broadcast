@@ -113,12 +113,12 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 ### Application configuration
 + poll.frequencyMillis `10000`
 + poll.startDelayMillis `500`
-+ watermark.default.expression `#[groovy: new GregorianCalendar(2015, Calendar.MAY, 25, 14, 00, 00)]`
++ watermark.default.expression `#[groovy: new GregorianCalendar(2015, Calendar.OCTOBER, 12, 14, 00, 00)]`
 
 #### WorkDay Connector configuration for company A
 + wday.user `user1@mulesoft_pt1`
 + wday.password `ExamplePassword565`
-+ wday.endpoint `https://services1.workday.com/ccx/service/acme/Human_Resources/v20`
++ wday.endpoint `https://services1.workday.com/ccx/service/acme/Human_Resources/v21.1`
 
 #### ServiceNow Connector configuration for company B
 + snow.user `snow_user1`

@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -18,14 +19,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mule.DefaultMuleMessage;
 import org.mule.MessageExchangePattern;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
+import org.mule.construct.Flow;
 import org.mule.context.notification.NotificationException;
 import org.mule.processor.chain.SubflowInterceptingChainLifecycleWrapper;
 
 import com.mulesoft.module.batch.BatchTestHelper;
-import com.servicenow.usermanagement.sysuser.GetRecordsResponse;
 
 /**
  * The objective of this class is to validate the correct behavior of the flows
@@ -36,7 +38,7 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 	private static final long TIMEOUT_MILLIS = 30000;
 	private static final long DELAY_MILLIS = 500;
 	protected static final String PATH_TO_TEST_PROPERTIES = "./src/test/resources/mule.test.properties";
-	protected static final int TIMEOUT_SEC = 60;
+	protected static final int TIMEOUT_SEC = 240;
 	private static final String PHONE_NUMBER = "232-2323";
 	private static final String STREET = "999 Main St";
 	private static final String CITY = "San Francisco";
@@ -52,7 +54,7 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
     public static void beforeTestClass() {
         System.setProperty("poll.startDelayMillis", "8000");
         System.setProperty("poll.frequencyMillis", "30000");
-        Date initialDate = new Date(System.currentTimeMillis() - 1000 * 60 * 1);
+        Date initialDate = new Date(System.currentTimeMillis() - 60*1000);
         Calendar cal = Calendar.getInstance();
         cal.setTime(initialDate);
         System.setProperty(
@@ -81,6 +83,31 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 		
 		createTestDataInSandBox();
     }
+    
+	@SuppressWarnings("unchecked")
+	@Test
+    public void testMainFlow() throws Exception {
+		Thread.sleep(10000);
+		runSchedulersOnce(POLL_FLOW_NAME);
+		waitForPollToRun();
+		helper.awaitJobTermination(TIMEOUT_MILLIS, DELAY_MILLIS);
+		helper.assertJobWasSuccessful();	
+		
+		// get requests from ServiceNow
+		Flow getSnowRequestsFlow =  (Flow) muleContext.getRegistry().lookupObject("getSnowUsers");
+		MuleEvent response = getSnowRequestsFlow.process(getTestEvent(new DefaultMuleMessage(EMAIL, muleContext)));
+		List<Map<String,String>> snowRes = ((List<Map<String,String>>)response.getMessage().getPayload());
+		logger.info("snow requests: " + snowRes.size());
+		
+		Assert.assertTrue("There should be a user in ServiceNow.", snowRes.size() == 1);
+		Assert.assertEquals("First name should be set", snowRes.get(0).get("first_name"), FIRST_NAME);
+		Assert.assertEquals("Last name should be set", snowRes.get(0).get("last_name"), LAST_NAME);
+		Assert.assertEquals("City should be set", snowRes.get(0).get("city"), CITY);
+		Assert.assertEquals("Street should be set", snowRes.get(0).get("street"), user.get("Street"));		
+		Assert.assertEquals("Home Phone number should be set", snowRes.get(0).get("home_phone"), "+1  " + PHONE_NUMBER);		
+		
+		SNOW_ID = snowRes.get(0).get("sys_id");
+    }    
 
     @After
     public void tearDown() throws MuleException, Exception {
@@ -112,38 +139,11 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 		user.put("State", "USA-CA");
 		user.put("City", CITY);
 		user.put("PostalCode", "94105");
-		user.put("LastModifiedDate", String.valueOf(System.currentTimeMillis()));
 		return user;
 	}
         
-	@Test
-    public void testMainFlow() throws Exception {
-		Thread.sleep(10000);
-		runSchedulersOnce(POLL_FLOW_NAME);
-		waitForPollToRun();
-		helper.awaitJobTermination(TIMEOUT_MILLIS, DELAY_MILLIS);
-		helper.assertJobWasSuccessful();	
-		
-		SubflowInterceptingChainLifecycleWrapper flow = getSubFlow("getSnowUsers");
-		flow.initialise();
-		
-		MuleEvent response = flow.process(getTestEvent(EMAIL, MessageExchangePattern.REQUEST_RESPONSE));
-		GetRecordsResponse snowRes = ((GetRecordsResponse)response.getMessage().getPayload());
-		logger.info("snow requests: " + snowRes.getGetRecordsResult().size());
-		
-		Assert.assertTrue("There should be a user in ServiceNow.", snowRes.getGetRecordsResult().size() == 1);
-		Assert.assertEquals("First name should be set", snowRes.getGetRecordsResult().get(0).getFirstName(), FIRST_NAME);
-		Assert.assertEquals("Last name should be set", snowRes.getGetRecordsResult().get(0).getLastName(), LAST_NAME);
-		Assert.assertEquals("City should be set", snowRes.getGetRecordsResult().get(0).getCity(), CITY);
-		Assert.assertEquals("Street should be set", snowRes.getGetRecordsResult().get(0).getStreet(), user.get("Street"));		
-		Assert.assertEquals("Home Phone number should be set", snowRes.getGetRecordsResult().get(0).getHomePhone(), "+1  " + PHONE_NUMBER);		
-		
-		SNOW_ID = snowRes.getGetRecordsResult().get(0).getSysId();
-    }    
-    
     private void deleteTestDataFromSandBox() throws MuleException, Exception {
     	logger.info("deleting test data...");
-		
     	SubflowInterceptingChainLifecycleWrapper flow = getSubFlow("deleteSnowUsers");
 		flow.initialise();		
 		flow.process(getTestEvent(SNOW_ID));							
