@@ -25,7 +25,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
     <batch:job name="broadcastUsers">
         <batch:threading-profile poolExhaustedAction="WAIT"/>
         <batch:process-records>
-            <batch:step name="GetServiceNowUserIfExists">
+            <batch:step name="GetServiceNowUserIfExistsStep">
                 <enricher source="#[payload]" target="#[recordVars.listOfUsersInServiceNow]" doc:name="store in recordVars.listOfUsersInServiceNow">
                     <processor-chain doc:name="Processor Chain">
                         <dw:transform-message doc:name="Create Request">
@@ -58,7 +58,7 @@ unless payload.getRecordsResponse is :empty otherwise []]]></dw:set-payload>
 
 
             </batch:step>
-            <batch:step name="InsertUserToServiceNow" accept-expression="recordVars.listOfUsersInServiceNow.isEmpty()">
+            <batch:step name="InsertUserToServiceNowStep" accept-expression="recordVars.listOfUsersInServiceNow.isEmpty()">
                 <dw:transform-message doc:name="Map to XML">
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
@@ -86,7 +86,7 @@ unless payload.getRecordsResponse is :empty otherwise []]]></dw:set-payload>
                 <servicenow:invoke config-ref="ServiceNow" type="sys_user||insert" doc:name="ServiceNow"/>
                 <logger message="ServiceNow insert finished..." level="INFO" doc:name="Log insert finished"/>
             </batch:step>
-            <batch:step name="UpdateUserInServiceNow" accept-expression="!recordVars.listOfUsersInServiceNow.isEmpty()">
+            <batch:step name="UpdateUserInServiceNowStep" accept-expression="!recordVars.listOfUsersInServiceNow.isEmpty()">
                 <dw:transform-message doc:name="Map to XML">
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
