@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.2.12</version>
+		<version>1.3.1</version>
 	</parent>
 
 	<artifactId>template-wday2snow-worker2user-broadcast</artifactId>
 	<packaging>mule</packaging>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.3.0-SNAPSHOT</version>
 	<name>template-wday2snow-worker2user-broadcast Anypoint Template Project</name>
 
 	<build>
