@@ -25,7 +25,6 @@ import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
 import org.mule.construct.Flow;
 import org.mule.context.notification.NotificationException;
-import org.mule.processor.chain.SubflowInterceptingChainLifecycleWrapper;
 
 import com.mulesoft.module.batch.BatchTestHelper;
 
@@ -47,7 +46,7 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 	private BatchTestHelper helper;
 	private Map<String, String> user = new HashMap<String, String>();	
 	private static String WORKDAY_ID;	
-    private String EMAIL = "drvukovic332211@live.com";	
+    private String EMAIL = "drvukovic332211" + System.currentTimeMillis() + "@live.com";	
     private String SNOW_ID;
     
     @BeforeClass
@@ -100,11 +99,11 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 		logger.info("snow requests: " + snowRes.size());
 		
 		Assert.assertTrue("There should be a user in ServiceNow.", snowRes.size() == 1);
-		Assert.assertEquals("First name should be set", snowRes.get(0).get("first_name"), FIRST_NAME);
-		Assert.assertEquals("Last name should be set", snowRes.get(0).get("last_name"), LAST_NAME);
-		Assert.assertEquals("City should be set", snowRes.get(0).get("city"), CITY);
-		Assert.assertEquals("Street should be set", snowRes.get(0).get("street"), user.get("Street"));		
-		Assert.assertEquals("Home Phone number should be set", snowRes.get(0).get("home_phone"), "+1  " + PHONE_NUMBER);		
+		Assert.assertEquals("First name should be set", FIRST_NAME, snowRes.get(0).get("first_name"));
+		Assert.assertEquals("Last name should be set", LAST_NAME, snowRes.get(0).get("last_name"));
+		Assert.assertEquals("City should be set", CITY, snowRes.get(0).get("city"));
+		Assert.assertEquals("Street should be set", user.get("Street"), snowRes.get(0).get("street"));		
+		Assert.assertEquals("Home Phone number should be set", "+1  " + PHONE_NUMBER, snowRes.get(0).get("home_phone"));		
 		
 		SNOW_ID = snowRes.get(0).get("sys_id");
     }    
@@ -119,11 +118,9 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 	}
     
     private void createTestDataInSandBox() throws MuleException, Exception {
-		SubflowInterceptingChainLifecycleWrapper flow = getSubFlow("updateWorkdayEmployee");
-		flow.initialise();
 		logger.info("updating a workday employee...");
 		try {
-			flow.process(getTestEvent(prepareEdit(), MessageExchangePattern.REQUEST_RESPONSE));						
+			runFlow("updateWorkdayEmployee", getTestEvent(prepareEdit(), MessageExchangePattern.REQUEST_RESPONSE));						
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -143,11 +140,7 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 	}
         
     private void deleteTestDataFromSandBox() throws MuleException, Exception {
-    	logger.info("deleting test data...");
-    	SubflowInterceptingChainLifecycleWrapper flow = getSubFlow("deleteSnowUsers");
-		flow.initialise();		
-		flow.process(getTestEvent(SNOW_ID));							
-
-	}       
-	
+    	logger.info("deleting test data...");						
+		runFlow("deleteSnowUsers", getTestEvent(SNOW_ID));
+	}
 }

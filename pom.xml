@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.2.3</version>
+		<version>1.2.12</version>
 	</parent>
 
 	<artifactId>template-wday2snow-worker2user-broadcast</artifactId>
@@ -28,7 +28,7 @@
 						</inclusion>
 						<inclusion>
 							<groupId>org.mule.modules</groupId>
-							<artifactId>mule-module-workday-humanresources</artifactId>
+							<artifactId>workday-connector</artifactId>
 						</inclusion>
 					</inclusions>
 				</configuration>
@@ -39,8 +39,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-workday-humanresources</artifactId>
-			<version>${wday.hr.version}</version>
+			<artifactId>workday-connector</artifactId>
+			<version>${wday.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mule.modules</groupId>
@@ -50,18 +50,6 @@
 		<dependency>
 			<groupId>com.mulesoft.muleesb.modules</groupId>
 			<artifactId>mule-module-batch-ee</artifactId>
-			<version>${mule.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-spring-config</artifactId>
-			<version>${mule.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-json</artifactId>
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>

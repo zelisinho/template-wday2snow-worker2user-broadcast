@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" 
-	xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr"
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:wd-connector="http://www.mulesoft.org/schema/mule/wd-connector"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" 
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
 	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" 
 	xmlns="http://www.mulesoft.org/schema/mule/core" 
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/wd-connector http://www.mulesoft.org/schema/mule/wd-connector/current/mule-wd-connector.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
-http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd-hr/current/mule-wd-hr.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
 
 	<!-- In this file you should declare all inbound endpoints of your application -->
@@ -32,62 +32,59 @@ Here you should not:
 			<watermark variable="lastQueryDate" default-expression="${watermark.defaultExpression}"  />
 			<processor-chain doc:name="query Workers and set collection">
                 <logger message="Fetching Workday updates...#[flowVars.lastQueryDate.getTime()]" level="INFO" doc:name="log 'Fetching workday updates...'"/>
-                <dw:transform-message doc:name="Create GetWorkersRequestType">
+                <dw:transform-message doc:name="Create GetWorkers Request" metadata:id="cd11c823-8f27-41ac-80e4-1ef463edcb0a">
                     <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
+%output application/xml
+%namespace ns0 urn:com.workday/bsvc
 ---
-{
-	requestCriteria: {
-		excludeInactiveWorkers		: true,
-		excludeContingentWorkers	: false,
-		excludeEmployees			: false,
-		transactionLogCriteriaData: [
-			{
-				transactionDateRangeData: {
-					updatedFrom		: flowVars.lastQueryDate,
-					updatedThrough	: now - |PT10S|
-				}
+ns0#Get_Workers_Request: {
+	ns0#Request_Criteria: {
+		ns0#Transaction_Log_Criteria_Data: {
+			ns0#Transaction_Date_Range_Data: {
+				ns0#Updated_From: flowVars.lastQueryDate,
+				ns0#Updated_Through: now - |PT10S|
 			}
-		]
+		},
+		ns0#Exclude_Inactive_Workers: true,
+		ns0#Exclude_Employees: false,
+		ns0#Exclude_Contingent_Workers: false
 	},
-	
-	responseGroup: {
-		includeRoles				: false,
-		includePersonalInformation	: true,
-		includeOrganizations		: false, 
-		includeEmploymentInformation: false,
-		includeReference			: false,
-		includeTransactionLogData	: false
+	ns0#Response_Group: {
+		ns0#Include_Reference: true,
+		ns0#Include_Personal_Information: true,
+		ns0#Include_Transaction_Log_Data: true,
+		ns0#Include_User_Account: true
 	}
-
-} as :object {class: "com.workday.hr.GetWorkersRequestType"}
-]]></dw:set-payload>
+}]]></dw:set-payload>
                 </dw:transform-message>
-				<wd-hr:get-workers config-ref="Workday_Human_Resource" doc:name="get Workers from Workday Human Resource"></wd-hr:get-workers>
-                <dw:transform-message doc:name="GetWorkersResponseType to List&lt;Map&gt;">
+				<wd-connector:invoke config-ref="Workday__Basic" type="Human_Resources||Get_Workers" doc:name="get Workers from Workday"/>
+                <dw:transform-message doc:name="GetWorkers Response to List&lt;Map&gt;" metadata:id="36af7649-c6cc-463b-9736-da1bc8b61c7a">
+                    <dw:input-payload doc:sample="sample_data\Get_Workers_Response.xml"/>
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
+%namespace ns0 urn:com.workday/bsvc
 ---
-payload.responseData.worker map {
+payload.ns0#Get_Workers_Response.ns0#Response_Data.*ns0#Worker map {
 	name        : "",
 	active      : true,
-	firstName   : $.workerData.personalData.nameData.legalNameData.nameDetailData.firstName,
-	lastName    : $.workerData.personalData.nameData.legalNameData.nameDetailData.lastName,
-	middleName  : $.workerData.personalData.nameData.legalNameData.nameDetailData.middleName default null,
-	userName    : $.workerData.userAccountData.userName default null,
-	email       : $.workerData.personalData.contactData.emailAddressData[-1].emailAddress when $.workerData.personalData.contactData.emailAddressData != null otherwise null,
-	homePhone   : $.workerData.personalData.contactData.phoneData[-1].formattedPhone when $.workerData.personalData.contactData.phoneData != null otherwise null,
-	title       : $.workerData.personalData.nameData.preferredNameData.nameDetailData.prefixData.salutationReference.descriptor default null,
-	"zip"       : $.workerData.personalData.contactData.addressData[-1].postalCode when $.workerData.personalData.contactData.addressData != null otherwise null,
-	street      : $.workerData.personalData.contactData.addressData[-1].addressLineData[-1].value when $.workerData.personalData.contactData.addressData != null otherwise null,
-	country     : $.workerData.personalData.contactData.addressData[-1].countryReference.ID[1].value when $.workerData.personalData.contactData.addressData != null otherwise null,
-	city        : $.workerData.personalData.contactData.addressData[-1].municipality when $.workerData.personalData.contactData.addressData != null otherwise null,
-	state       : $.workerData.personalData.contactData.addressData[-1].countryRegionReference.ID[-1].value when $.workerData.personalData.contactData.addressData != null otherwise null
-} unless (payload.responseData is :null) otherwise []]]></dw:set-payload>
+	firstName   : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Name_Data.ns0#Legal_Name_Data.ns0#Name_Detail_Data.ns0#First_Name,
+	lastName    : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Name_Data.ns0#Legal_Name_Data.ns0#Name_Detail_Data.ns0#Last_Name,
+	middleName  : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Name_Data.ns0#Legal_Name_Data.ns0#Name_Detail_Data.ns0#Middle_Name default null,
+	userName    : $.ns0#Worker_Data.ns0#User_Account_Data.ns0#User_Name default null,
+	email       : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Email_Address_Data[-1].ns0#Email_Address when $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Email_Address_Data != null otherwise null,
+	homePhone   : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Phone_Data.@ns0#Formatted_Phone[-1] when $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Phone_Data != null otherwise null,
+	title       : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Name_Data.ns0#Preferred_Name_Data.ns0#Name_Detail_Data.ns0#Prefix_Data.ns0#Salutation_Reference.@ns0#Descriptor default null,
+	"zip"       : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data[-1].ns0#Postal_Code when $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data != null otherwise null,
+	street      : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data[-1].*ns0#Address_Line_Data[-1] when $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data != null otherwise null,
+	country     : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data[-1].ns0#Country_Reference.*ns0#ID[1] when $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data != null otherwise null,
+	city        : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data[-1].ns0#Municipality when $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data != null otherwise null,
+	state       : $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data[-1].ns0#Country_Region_Reference.*ns0#ID[-1] when $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.*ns0#Address_Data != null otherwise null
+} unless (payload.ns0#Get_Workers_Response.ns0#Response_Data is :null) otherwise []]]></dw:set-payload>
                     <dw:set-variable variableName="lastQueryDate"><![CDATA[%dw 1.0
 %output application/java
+%namespace ns0 urn:com.workday/bsvc
 ---
-payload.requestCriteria.transactionLogCriteriaData[0].transactionDateRangeData.updatedThrough]]></dw:set-variable>
+payload.ns0#Get_Workers_Response.ns0#Request_Criteria.*ns0#Transaction_Log_Criteria_Data[0].ns0#Transaction_Date_Range_Data.ns0#Updated_Through]]></dw:set-variable>
                 </dw:transform-message>
 
 			</processor-chain>
@@ -95,7 +92,7 @@ payload.requestCriteria.transactionLogCriteriaData[0].transactionDateRangeData.u
         <expression-filter expression="#[payload.size() &gt; 0]" doc:name="Filter empty result set"/>
 
 
-        <logger level="INFO" doc:name="log worker's name" message="Workday workers: #[payload]"/>
+        <logger level="INFO" doc:name="log workers" message="Workday workers: #[payload]"/>
         <batch:execute name="broadcastUsers" doc:name="execute broadcastUsers batch"/>
 
 		
