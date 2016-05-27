@@ -116,9 +116,10 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + watermark.default.expression `#[groovy: new GregorianCalendar(2015, Calendar.OCTOBER, 12, 14, 00, 00)]`
 
 #### WorkDay Connector configuration for company A
-+ wday.user `user1@mulesoft_pt1`
-+ wday.password `ExamplePassword565`
-+ wday.endpoint `https://services1.workday.com/ccx/service/acme/Human_Resources/v21.1`
++ wday.user `joan`
++ wday.tenant `acme_pt1`
++ wday.password `joanPass123`
++ wday.hostname `your_impl-cc.workday.com`
 
 #### ServiceNow Connector configuration for company B
 + snow.user `snow_user1`
