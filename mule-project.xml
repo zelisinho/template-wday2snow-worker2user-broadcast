@@ -3,5 +3,5 @@
     <name>template-wday2snow-worker2user-broadcast-1.3.0-SNAPSHOT</name>
     <description></description>
     <muleExtension name="ServiceNow" qualifier="org.mule.tooling.ui.contribution.servicenow.3.7.0"/>
-    muleExtension name="Workday" qualifier="org.mule.tooling.ui.contribution.wd-connector.3.7.0"/>
+    <muleExtension name="Workday" qualifier="org.mule.tooling.ui.contribution.wd-connector.3.7.0"/>
 </mule-project>
