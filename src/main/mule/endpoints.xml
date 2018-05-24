@@ -38,7 +38,7 @@ ns ns0 urn:com.workday/bsvc
         ns0#Request_Criteria: {
             ns0#Transaction_Log_Criteria_Data: {
                 ns0#Transaction_Date_Range_Data: {
-                    ns0#Updated_From: p('migration.startDate'),
+                    ns0#Updated_From: vars.lastQueryTimestamp,
                     ns0#Updated_Through: (now() - |PT6S|)
                 }
             },
