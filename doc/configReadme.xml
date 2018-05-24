@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<configuration>
+	<placeholders>
+		<placeholder id="template_name">
+		Workday Worker to ServiceNow User Broadcast
+		</placeholder>
+	</placeholders>
+	<sections>
+		<section id="use_case">
+			<![CDATA[
+As a Workday admin I want to broadcast all modified worker entries to Service Now as user entries.			
+
+The data is processed as follows:
+1. Workday is polled in intervals for new modifications of workers using scheduler 
+2. Service Now is queried for existing entries
+3. Either a new user is created or existing is updated 
+		
+			]]>
+		</section>
+		<section id="considerations">
+			<![CDATA[There are no special considerations for this template.  ]]>
+		</section>
+		<section id="application_configuration">
+			<![CDATA[
+			
+#### Batch configuration
+page.size `100`			
+			
+#### Scheduler configuration			
+scheduler.frequency `10000`
+scheduler.start.delay `500`
+
+#### Watermarking default last query timestamp e.g. 2016-12-13T03:00:59Z
++ watermark.default.expression `2016-12-13T03:00:59Z`
+
+#### WorkDay Connector configuration for company A
++ wday.username `joan`
++ wday.tenant `acme_pt1`
++ wday.password `joanPass123`
++ wday.hostname `your_impl-cc.workday.com`
+
+#### ServiceNow Connector configuration for company B
++ snow.user `snow_user1`
++ snow.password `ExamplePassword881`
++ snow.endpoint `https://instance.service-now.com`
+		  ]]>
+		</section>
+		<section id="api_calls">
+			<![CDATA[There are no special considerations regarding API calls.  ]]>
+		</section>
+		<section id="default_endpoints_xml">
+		<![CDATA[
+This file should contain every inbound endpoint of your integration app. It is intended to contain the application API.
+In this particular template, this file contains a scheduler endpoint that query Workday for updates using watermark.
+]]>
+		</section>
+		<section id="default_business_logic_xml">
+		<![CDATA[
+This file holds the functional aspect of the template (points 2. to 3. described in the [template overview](#templateoverview)). Its main component is a [*Batch job*][8], and it includes *steps* for executing the broadcast operation from Workday to Service.
+]]>
+	</section>
+	</sections>
+</configuration>
