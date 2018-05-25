@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd">
+
+<flow name="businessLogicFlow" doc:id="8759532e-79b7-4789-990c-dc8e162bfd67" >
+    <batch:job jobName="migrateWorkersBatch" doc:id="204892ae-0d97-4326-beae-310c8d52b7a6" blockSize="${page.size}">
+        <batch:process-records>
+                <batch:step name="getWorkersFromServiceNow" doc:id="232087de-e311-49c1-a890-439c65ea1af2" >
+					<ee:transform doc:name="Create getRecords Request" doc:id="10a600ef-755d-4382-8431-50e94fa1ba64">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.service-now.com/sys_user
+---
+using (personalData = payload.Worker_Data.Personal_Data)
+{
+	ns0#getRecords: {
+		ns0#email: personalData.Contact_Data.Email_Address_Data.Email_Address,
+		ns0#"first_name": personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.First_Name,
+		ns0#"last_name": personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.Last_Name
+	}
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="worker" ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<servicenow:invoke doc:name="query user in ServiceNow" doc:id="c12d4342-ac24-4f96-ba45-b5941d59f8da" config-ref="ServiceNow_Config" service="sys_user" operation="getRecords"/>
+					<ee:transform doc:name="Get User ID" doc:id="eb376624-cb1d-45c1-8303-19329e28094b" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+vars.worker ++ {
+	snowUserId: payload.body.getRecordsResponse.getRecordsResult.sys_id
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+            </batch:step>
+				<batch:step name="createUsersInServiceNowStep" doc:id="13d29b30-853d-4c44-92d1-f53749e3e436" acceptExpression="#[payload != null and payload.snowUserId == null]">
+					<ee:transform doc:name="Create insert Request" doc:id="0d45ef31-1598-4216-8b2a-b8f2adf8f5b7" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.service-now.com/sys_user
+---
+using (personalData = payload.Worker_Data.Personal_Data)
+{
+	ns0#insert: {
+		ns0#active        : 1,
+		ns0#city          : personalData.Contact_Data.Address_Data.Municipality,
+		ns0#country       : personalData.Contact_Data.Address_Data.Country_Reference.ID,
+		ns0#email         : personalData.Contact_Data.Email_Address_Data.Email_Address,
+		ns0#"first_name"  : personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.First_Name,
+		ns0#"home_phone"  : personalData.Contact_Data.Phone_Data.Phone_Number,
+		ns0#"last_name"   : personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.Last_Name,
+		ns0#state         : personalData.Contact_Data.Address_Data.Country_Region_Reference.ID,
+		ns0#street        : personalData.Contact_Data.Address_Data.Address_Line_Data,
+		ns0#"user_name"   : payload.Worker_Data.User_Account_Data.User_Name,
+		ns0#"zip"         : personalData.Contact_Data.Address_Data.Postal_Code
+	}
+}
+
+]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<servicenow:invoke doc:name="Insert data" doc:id="6183c574-16e9-4007-956c-113a2702efb9" config-ref="ServiceNow_Config" service="sys_user" operation="insert"/>
+				</batch:step>
+				<batch:step name="updateUsersInServiceNowStep" doc:id="495279da-ca4e-49ec-a805-f7f9c9334950" acceptExpression="#[payload != null and payload.snowUserId != null]">
+					<ee:transform doc:name="Create update Request" doc:id="25b73fcd-2dfa-47b1-a9a3-a8d929a23e10" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.service-now.com/sys_user
+---
+using (personalData = payload.Worker_Data.Personal_Data)
+{
+	ns0#update: {
+		ns0#"sys_id"      : payload.snowUserId,
+		ns0#active        : 1,
+		ns0#city          : personalData.Contact_Data.Address_Data.Municipality,
+		ns0#country       : personalData.Contact_Data.Address_Data.Country_Reference.ID,
+		ns0#email         : personalData.Contact_Data.Email_Address_Data.Email_Address,
+		ns0#"first_name"  : personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.First_Name,
+		ns0#"home_phone"  : personalData.Contact_Data.Phone_Data.Phone_Number,
+		ns0#"last_name"   : personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.Last_Name,
+		ns0#state         : personalData.Contact_Data.Address_Data.Country_Region_Reference.ID,
+		ns0#street        : personalData.Contact_Data.Address_Data.Address_Line_Data,
+		ns0#"user_name"  : payload.Worker_Data.User_Account_Data.User_Name,
+		ns0#"zip"         : personalData.Contact_Data.Address_Data.Postal_Code
+	}
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<servicenow:invoke doc:name="Update data" doc:id="1e70d815-8368-42e2-b9e2-9b93f6788822" config-ref="ServiceNow_Config" service="sys_user" operation="update"/>
+				</batch:step>
+        </batch:process-records>
+        <batch:on-complete>
+            <ee:transform doc:name="Prepare migration result" doc:id="c84b4bc4-5a65-41c1-9d0c-f1ebd3d8db7a">
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
+output text/plain
+---
+"Migration Report: \n"
+
+++ "\n Time [milliseconds]: " 		++ payload.elapsedTimeInMillis
+++ "\n Total Records: "				++ payload.totalRecords
+++ "\n Successful Records: "		++ payload.successfulRecords
+++ "\n Failed Records: "			++ payload.failedRecords
+++ "\n Loaded Records: "			++ payload.loadedRecords
+++ "\n Processed Records: " 		++ payload.processedRecords]]></ee:set-payload>
+                </ee:message>
+            </ee:transform>
+            <logger level="INFO" doc:name="Migration process has finished!" doc:id="b7575d38-7dbd-4602-9186-1bbb25234896" message="Migration process has finished: #[payload]" />
+
+        </batch:on-complete>
+
+    </batch:job>
+</flow>
+
+</mule>
+
+
+        
