@@ -2,7 +2,11 @@
 # Anypoint Template: Workday Worker to ServiceNow User Broadcast	
 
 <!-- Header (start) -->
+As worker information is added or removed from Workday, you may find the need to create a user in ServiceNow. This template lets you broadcast (one way sync) those changes to workers in Workday to users in ServiceNow in real time. The detection criteria, and fields to move are configurable. Additional systems can easily added to be notified of changes. Real time synchronization is achieved via rapid polling of Workday or you can slow down the interval to something near real time. 
 
+This template uses Mule batching and watermarking capabilities to ensure that only recent changes are captured and to efficiently process large amounts of records if you choose to slow down the polling interval.
+
+![7de99179-8401-4c19-b605-74c514f2a437-image.png](https://exchange2-file-upload-service-kprod.s3.us-east-1.amazonaws.com:443/7de99179-8401-4c19-b605-74c514f2a437-image.png)
 <!-- Header (end) -->
 
 # License Agreement
@@ -12,9 +16,10 @@ This template is subject to the conditions of the <a href="https://s3.amazonaws.
 As a Workday admin I want to broadcast all modified worker entries to Service Now as user entries.			
 
 The data is processed as follows:
-1. Workday is polled in intervals for new modifications of workers using scheduler 
-2. Service Now is queried for existing entries
-3. Either a new user is created or existing is updated
+
+1. Workday is polled in intervals for new modifications of workers using scheduler.
+2. Service Now is queried for existing entries.
+3. Either a new user is created or existing is updated.
 <!-- Use Case (end) -->
 
 # Considerations
@@ -26,14 +31,9 @@ The data is processed as follows:
 There are no special considerations for this template.
 <!-- Considerations (end) -->
 
-
-
-
-
 ## ServiceNow Considerations
 
 Here's what you need to know to get this template to work with ServiceNow.
-
 
 ### As a Data Destination
 
@@ -43,12 +43,6 @@ There are no considerations with using ServiceNow as a data destination.
 ### As a Data Source
 
 There are no considerations with using Workday as a data origin.
-
-
-
-
-
-
 
 # Run it!
 Simple steps to get this template running.
@@ -65,8 +59,8 @@ In this section we help you run this template on your computer.
 ### Where to Download Anypoint Studio and the Mule Runtime
 If you are new to Mule, download this software:
 
-+ [Download Anypoint Studio](https://www.mulesoft.com/platform/studio)
-+ [Download Mule runtime](https://www.mulesoft.com/lp/dl/mule-esb-enterprise)
+- [Download Anypoint Studio](https://www.mulesoft.com/platform/studio)
+- [Download Mule runtime](https://www.mulesoft.com/lp/dl/mule-esb-enterprise)
 
 **Note:** Anypoint Studio requires JDK 8.
 <!-- Where to download (start) -->
@@ -82,13 +76,14 @@ In Studio, click the Exchange X icon in the upper left of the taskbar, log in wi
 ### Running on Studio
 After you import your template into Anypoint Studio, follow these steps to run it:
 
-+ Locate the properties file `mule.dev.properties`, in src/main/resources.
-+ Complete all the properties required as per the examples in the "Properties to Configure" section.
-+ Right click the template project folder.
-+ Hover your mouse over `Run as`.
-+ Click `Mule Application (configure)`.
-+ Inside the dialog, select Environment and set the variable `mule.env` to the value `dev`.
-+ Click `Run`.
+1. Locate the properties file `mule.dev.properties`, in src/main/resources.
+2. Complete all the properties required per the examples in the "Properties to Configure" section.
+3. Right click the template project folder.
+4. Hover your mouse over `Run as`.
+5. Click `Mule Application (configure)`.
+6. Inside the dialog, select Environment and set the variable `mule.env` to the value `dev`.
+7. Click `Run`.
+
 <!-- Running on Studio (start) -->
 
 <!-- Running on Studio (end) -->
@@ -111,28 +106,34 @@ In Studio, right click your project name in Package Explorer and select Anypoint
 
 ## Properties to Configure
 To use this template, configure properties such as credentials, configurations, etc.) in the properties file or in CloudHub from Runtime Manager > Manage Application > Properties. The sections that follow list example values.
+
 ### Application Configuration
 <!-- Application Configuration (start) -->
-#### Batch configuration
-page.size `100`			
+#### Batch Configuration
+
+- page.size `100`			
 			
-#### Scheduler configuration			
-scheduler.frequency `10000`
-scheduler.start.delay `500`
+#### Scheduler Configuration
 
-#### Watermarking default last query timestamp e.g. 2016-12-13T03:00:59Z
-+ watermark.default.expression `2016-12-13T03:00:59Z`
+- scheduler.frequency `10000`
+- scheduler.start.delay `500`
 
-#### WorkDay Connector configuration for company A
-+ wday.username `joan`
-+ wday.tenant `acme_pt1`
-+ wday.password `joanPass123`
-+ wday.hostname `your_impl-cc.workday.com`
+#### Watermarking Default Last query Timestamp For Example 2019-12-13T03:00:59Z
 
-#### ServiceNow Connector configuration for company B
-+ snow.user `snow_user1`
-+ snow.password `ExamplePassword881`
-+ snow.endpoint `https://instance.service-now.com`
+- watermark.default.expression `2019-12-13T03:00:59Z`
+
+#### WorkDay Connector Configuration for Company A
+
+- wday.username `joan`
+- wday.tenant `acme_pt1`
+- wday.password `joanPass123`
+- wday.hostname `your_impl-cc.workday.com`
+
+#### ServiceNow Connector Configuration for Company B
+
+- snow.user `snow_user1`
+- snow.password `ExamplePassword881`
+- snow.endpoint `https://instance.service-now.com`
 <!-- Application Configuration (end) -->
 
 # API Calls
@@ -143,16 +144,18 @@ There are no special considerations regarding API calls.
 # Customize It!
 This brief guide provides a high level understanding of how this template is built and how you can change it according to your needs. As Mule applications are based on XML files, this page describes the XML files used with this template. More files are available such as test classes and Mule application files, but to keep it simple, we focus on these XML files:
 
-* config.xml
-* businessLogic.xml
-* endpoints.xml
-* errorHandling.xml<!-- Customize it (start) -->
+- config.xml
+- businessLogic.xml
+- endpoints.xml
+- errorHandling.xml
+<!-- Customize it (start) -->
 
 <!-- Customize it (end) -->
 
 ## config.xml
 <!-- Default Config XML (start) -->
-This file provides the configuration for connectors and configuration properties. Only change this file to make core changes to the connector processing logic. Otherwise, all parameters that can be modified should instead be in a properties file, which is the recommended place to make changes.<!-- Default Config XML (end) -->
+This file provides the configuration for connectors and configuration properties. Only change this file to make core changes to the connector processing logic. Otherwise, all parameters that can be modified should instead be in a properties file, which is the recommended place to make changes.
+<!-- Default Config XML (end) -->
 
 <!-- Config XML (start) -->
 
@@ -160,7 +163,8 @@ This file provides the configuration for connectors and configuration properties
 
 ## businessLogic.xml
 <!-- Default Business Logic XML (start) -->
-This file holds the functional aspect of the template (points 2. to 3. described in the [template overview](#templateoverview)). Its main component is a [*Batch job*][8], and it includes *steps* for executing the broadcast operation from Workday to Service.<!-- Default Business Logic XML (end) -->
+This file holds the functional aspect of the template (points 2 to 3 described in the template overview). Its main component is a batch job, and it includes *steps* for executing the broadcast operation from Workday to Service.
+<!-- Default Business Logic XML (end) -->
 
 <!-- Business Logic XML (start) -->
 
@@ -169,7 +173,8 @@ This file holds the functional aspect of the template (points 2. to 3. described
 ## endpoints.xml
 <!-- Default Endpoints XML (start) -->
 This file should contain every inbound endpoint of your integration app. It is intended to contain the application API.
-In this particular template, this file contains a scheduler endpoint that query Workday for updates using watermark.<!-- Default Endpoints XML (end) -->
+In this particular template, this file contains a scheduler endpoint that query Workday for updates using watermark.
+<!-- Default Endpoints XML (end) -->
 
 <!-- Endpoints XML (start) -->
 
