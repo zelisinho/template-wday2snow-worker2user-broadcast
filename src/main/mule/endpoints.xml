@@ -42,9 +42,7 @@ ns ns0 urn:com.workday/bsvc
                     ns0#Updated_Through: (now() - |PT6S|)
                 }
             },
-            ns0#Exclude_Inactive_Workers: true,
-            ns0#Exclude_Employees: false,
-            ns0#Exclude_Contingent_Workers: false
+            ns0#Exclude_Inactive_Workers: true
         },
         ns0#Response_Group: {
             ns0#Include_Reference: true,
@@ -56,24 +54,45 @@ ns ns0 urn:com.workday/bsvc
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-        <workday:invoke service="Human_Resources" operation="Get_Workers" doc:name="Get Workers from Workday" doc:id="e0ba44f9-fbaa-4155-b81e-f3c463198536" config-ref="Workday_Config" />
-        <os:store key="watermark" failOnNullValue="false" doc:name="Store lastQueryTimestamp">
-            <os:value><![CDATA[#[payload.body.Get_Workers_Response.Request_Criteria.Transaction_Log_Criteria_Data.Transaction_Date_Range_Data.Updated_Through]]]></os:value>
-        </os:store>
-        <ee:transform doc:name="Filter response" doc:id="29e11f39-d7ad-4e29-b095-3d7ea3d22f09" >
-            <ee:message >
-                <ee:set-payload ><![CDATA[%dw 2.0
+        <workday:human-resources operation="Get_Workers" doc:name="Get Workers from Workday" doc:id="a625e264-0f16-4d5a-b6bc-2df5471ee4fe" config-ref="Workday_Config_version_30"/>
+		<ee:transform doc:name="Filter response" doc:id="29e11f39-d7ad-4e29-b095-3d7ea3d22f09">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ns ns0 urn:com.workday/bsvc
----
-if (payload.body.ns0#Get_Workers_Response.ns0#Response_Data != null) 
-((payload.body.ns0#Get_Workers_Response.ns0#Response_Data.*ns0#Worker
+var data = if (payload.ns0#Get_Workers_Response.ns0#Response_Data != null) 
+((payload.ns0#Get_Workers_Response.ns0#Response_Data.*ns0#Worker
 filter ($.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.ns0#Email_Address_Data.ns0#Email_Address != null 
 and $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.ns0#Email_Address_Data.ns0#Email_Address != ''))
 distinctBy $.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.ns0#Email_Address_Data.ns0#Email_Address)
-else []]]></ee:set-payload>
+else null
+---
+if(data != null)
+	data.Worker_Data map {
+		city : $.Personal_Data.Contact_Data.Address_Data.Municipality,
+		country: $.Personal_Data.Contact_Data.Address_Data.Country_Reference.ID,
+		email: $.Personal_Data.Contact_Data.Email_Address_Data.Email_Address,
+		firstname : $.Personal_Data.Name_Data.Preferred_Name_Data.Name_Detail_Data.First_Name,
+		homephone : $.Personal_Data.Contact_Data.Phone_Data.Phone_Number,
+		lastname : $.Personal_Data.Name_Data.Preferred_Name_Data.Name_Detail_Data.Last_Name,
+		state : $.Personal_Data.Contact_Data.Address_Data.Country_Region_Reference.ID,
+		street : $.Personal_Data.Contact_Data.Address_Data.Address_Line_Data,
+		username : $.User_Account_Data.User_Name,
+		zip : $.Personal_Data.Contact_Data.Address_Data.Postal_Code
+} else []
+]]></ee:set-payload>
             </ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="workdayDate"><![CDATA[%dw 2.0
+output application/java
+ns ns0 urn:com.workday/bsvc
+---
+payload.ns0#Get_Workers_Response.Request_Criteria.Transaction_Log_Criteria_Data.Transaction_Date_Range_Data.Updated_Through]]></ee:set-variable>
+			</ee:variables>
         </ee:transform>
+		<os:store key="watermark" failOnNullValue="false" doc:name="Store lastQueryTimestamp" objectStore="watermarkStore">
+			<os:value ><![CDATA[#[vars.workdayDate]]]></os:value>
+        </os:store>
 
     </flow>
 </mule>
