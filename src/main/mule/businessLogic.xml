@@ -19,12 +19,11 @@ http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mu
 output application/xml
 ns ns0 http://www.service-now.com/sys_user
 ---
-using (personalData = payload.Worker_Data.Personal_Data)
 {
 	ns0#getRecords: {
-		ns0#email: personalData.Contact_Data.Email_Address_Data.Email_Address,
-		ns0#"first_name": personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.First_Name,
-		ns0#"last_name": personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.Last_Name
+		ns0#email: payload.email,
+		ns0#"first_name": payload.firstname,
+		ns0#"last_name": payload.lastname
 	}
 }]]></ee:set-payload>
 						</ee:message>
@@ -54,20 +53,19 @@ vars.worker ++ {
 output application/xml
 ns ns0 http://www.service-now.com/sys_user
 ---
-using (personalData = payload.Worker_Data.Personal_Data)
 {
 	ns0#insert: {
 		ns0#active        : 1,
-		ns0#city          : personalData.Contact_Data.Address_Data.Municipality,
-		ns0#country       : personalData.Contact_Data.Address_Data.Country_Reference.ID,
-		ns0#email         : personalData.Contact_Data.Email_Address_Data.Email_Address,
-		ns0#"first_name"  : personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.First_Name,
-		ns0#"home_phone"  : personalData.Contact_Data.Phone_Data.Phone_Number,
-		ns0#"last_name"   : personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.Last_Name,
-		ns0#state         : personalData.Contact_Data.Address_Data.Country_Region_Reference.ID,
-		ns0#street        : personalData.Contact_Data.Address_Data.Address_Line_Data,
-		ns0#"user_name"   : payload.Worker_Data.User_Account_Data.User_Name,
-		ns0#"zip"         : personalData.Contact_Data.Address_Data.Postal_Code
+		ns0#city          : payload.city,
+		ns0#country       : payload.country,
+		ns0#email         : payload.email,
+		ns0#"first_name"  : payload.firstname,
+		ns0#"home_phone"  : payload.homephone,
+		ns0#"last_name"   : payload.lastname,
+		ns0#state         : payload.state,
+		ns0#street        : payload.street,
+		ns0#"user_name"   : payload.username,
+		ns0#"zip"         : payload.zip
 	}
 }
 
@@ -83,21 +81,20 @@ using (personalData = payload.Worker_Data.Personal_Data)
 output application/xml
 ns ns0 http://www.service-now.com/sys_user
 ---
-using (personalData = payload.Worker_Data.Personal_Data)
 {
 	ns0#update: {
 		ns0#"sys_id"      : payload.snowUserId,
 		ns0#active        : 1,
-		ns0#city          : personalData.Contact_Data.Address_Data.Municipality,
-		ns0#country       : personalData.Contact_Data.Address_Data.Country_Reference.ID,
-		ns0#email         : personalData.Contact_Data.Email_Address_Data.Email_Address,
-		ns0#"first_name"  : personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.First_Name,
-		ns0#"home_phone"  : personalData.Contact_Data.Phone_Data.Phone_Number,
-		ns0#"last_name"   : personalData.Name_Data.Preferred_Name_Data.Name_Detail_Data.Last_Name,
-		ns0#state         : personalData.Contact_Data.Address_Data.Country_Region_Reference.ID,
-		ns0#street        : personalData.Contact_Data.Address_Data.Address_Line_Data,
-		ns0#"user_name"  : payload.Worker_Data.User_Account_Data.User_Name,
-		ns0#"zip"         : personalData.Contact_Data.Address_Data.Postal_Code
+		ns0#city          : payload.city,
+		ns0#country       : payload.country,
+		ns0#email         : payload.email,
+		ns0#"first_name"  : payload.firstname,
+		ns0#"home_phone"  : payload.homephone,
+		ns0#"last_name"   : payload.lastname,
+		ns0#state         : payload.state,
+		ns0#street        : payload.street,
+		ns0#"user_name"   : payload.username,
+		ns0#"zip"         : payload.zip
 	}
 }]]></ee:set-payload>
 						</ee:message>

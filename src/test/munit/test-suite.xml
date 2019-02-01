@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+    xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+		http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd">
+   
+    <munit:config name="test-suite.xml" />
+
+    <configuration-properties doc:name="Configuration properties" doc:id="560ab989-6e19-4d33-afca-e0ea90c67c58" file="mule.test.properties" />
+   
+<munit:before-test name="test-suiteBefore_Test" description="Before tests actions" doc:id="e0e0e98f-b743-4151-9d5e-33b7dba9e917">
+		<ee:transform doc:name="Prepare Insert Request" doc:id="11e2baca-bf5b-4bd9-9386-c74f42971d61" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.service-now.com/sys_user
+var generateId = randomInt(10000)
+---
+{
+	ns0#insert: {
+		ns0#active        : 1,
+		ns0#city          : "TestMunit" ++ generateId,
+		ns0#country       : "TestMunit" ++ generateId,
+		ns0#email         : p('test.wday.email'),
+		ns0#"first_name"  : p('test.wday.firstname'),
+		ns0#"home_phone"  : "TestMunit" ++ generateId,
+		ns0#"last_name"   : p('test.wday.lastname'),
+		ns0#state         : "TestMunit" ++ generateId,
+		ns0#street        : "TestMunit" ++ generateId,
+		ns0#"user_name"   : "TestMunit" ++ generateId,
+		ns0#"zip"         : "TestMunit" ++ generateId
+	}
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<servicenow:invoke service="sys_user" operation="insert" doc:name="Insert Test Record" doc:id="16513339-fe84-4543-9905-d2233c89c315" config-ref="ServiceNow_Config"/>
+		<ee:transform doc:name="Save ServiceNow Ids" doc:id="bbe9ccf5-62e9-4dad-b238-3eca53de28e8" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="snowIds" ><![CDATA[%dw 2.0
+output application/java
+---
+[payload.body.insertResponse."sys_id"]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</munit:before-test>
+	<munit:test name="test-suiteFlowTest" description="MUnit Test" doc:id="7fdcf7b1-6be6-41e3-808e-8d8e0198eba9" >
+		<munit:execution>
+			<flow-ref doc:name="Query Flow" doc:id="7f8bb6a9-7916-4478-928c-b493f168ff35" name="queryFlow"/>
+			<ee:transform doc:name="Filter Test Records and Add New Record" doc:id="47272dc8-3f78-42df-83cc-d2c04986897d" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var updateRecords= payload filter ($.email == p('test.wday.email') and $.firstname == p('test.wday.firstname') and $.lastname == p('test.wday.lastname'))
+var generateId = randomInt(100000)
+---
+updateRecords + {
+    city: "TestMunit" ++ generateId,
+    country: "TestMunit" ++ generateId,
+    email: "TestMunit" ++ generateId,
+    firstname: "TestMunit" ++ generateId,
+    homephone: "TestMunit" ++ generateId,
+    lastname: "TestMunit" ++ generateId,
+    state: "TestMunit" ++ generateId,
+    street: "TestMunit" ++ generateId,
+    username: "TestMunit" ++ generateId,
+    zip: "TestMunit" ++ generateId
+  }]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="#[payload]" doc:name="Save Migrated Records" doc:id="b912846f-caf6-4eca-954d-b304e9fa0df4" variableName="migratedRecords"/>
+			<flow-ref doc:name='Call Business Logic Flow' doc:id="0ddaa826-1c0d-432c-9025-f6da53792064" name="businessLogicFlow"/>
+			<scripting:execute engine="groovy" doc:name="Sleep for 30s until the processing is completed" doc:id="798409d1-dbe8-4ca5-9a96-a9202667e325">
+				<scripting:code>sleep(30000)</scripting:code>
+			</scripting:execute>
+
+</munit:execution>
+		<munit:validation >
+			<flow-ref doc:name="Query For Updated User" doc:id="0a8dbe29-057f-4ac3-9d83-faaf0aeaf7d4" name="QueryForUpdatedUser"/>
+			<flow-ref doc:name="Query For Created User" doc:id="f6e4572a-0873-40df-89b5-3fa6d0e40018" name="QueryForCreatedUser" />
+		</munit:validation>
+	</munit:test>
+	<sub-flow name="QueryForUpdatedUser" doc:id="cd4cd3d3-b6c8-4bd4-b537-be99bf04ecb8" >
+		<ee:transform doc:name="Prepare Query Request" doc:id="f2bbcb16-b555-4c3b-959e-d5bf4beb2bcf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.service-now.com/sys_user
+---
+{
+	ns0#getRecords: {
+		ns0#email: vars.migratedRecords[0].email,
+		ns0#"first_name": vars.migratedRecords[0].firstname,
+		ns0#"last_name": vars.migratedRecords[0].lastname,
+		ns0#"city": vars.migratedRecords[0].city,
+		ns0#"state": vars.migratedRecords[0].state
+		
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<servicenow:invoke service="sys_user" doc:name="Query to ServiceNow" doc:id="9ba07bc3-ec74-4112-a421-7c9b3caf5256" config-ref="ServiceNow_Config" operation="getRecords"/>
+		<ee:transform doc:name="Prepare Response" doc:id="2eea0256-2ecf-4292-a484-db1da729501a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload.body.getRecordsResponse.getRecordsResult]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="snowIds" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.body.getRecordsResponse.*getRecordsResult.sys_id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<munit-tools:assert-that doc:name="Assert that User was updated" doc:id="010ced68-17cc-44e7-9964-6a0bacc186cc" expression="#[payload.email]" is="#[MunitTools::equalTo(vars.migratedRecords[0].email)]" message="User should be updated"/>
+		<munit-tools:verify-call doc:name="Verify ServiceNow Update call" doc:id="c4f0d379-7a21-4f6f-8245-1f4323074543" processor="servicenow:invoke" times="1">
+			<munit-tools:with-attributes >
+				<munit-tools:with-attribute attributeName="doc:id" whereValue="1e70d815-8368-42e2-b9e2-9b93f6788822" />
+			</munit-tools:with-attributes>
+		</munit-tools:verify-call>
+	</sub-flow>
+	<sub-flow name="QueryForCreatedUser" doc:id="b9949591-c01f-4454-837c-b10606410bf7" >
+		<ee:transform doc:name="Prepare Query Request" doc:id="e2fa0e3d-f587-4ec5-b653-c86f165f74bf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.service-now.com/sys_user
+---
+{
+	ns0#getRecords: {
+		ns0#email: vars.migratedRecords[1].email,
+		ns0#"first_name": vars.migratedRecords[1].firstname,
+		ns0#"last_name": vars.migratedRecords[1].lastname
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<servicenow:invoke service="sys_user" doc:name="Query to ServiceNow" doc:id="1b7979bf-eb35-40f5-8a37-0139501ed637" config-ref="ServiceNow_Config" operation="getRecords"/>
+		<ee:transform doc:name="Prepare Response" doc:id="e91cc3ea-3e59-43a6-a793-2b1b47debf98" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload.body.getRecordsResponse.getRecordsResult]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="snowIds" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.snowIds + payload.body.getRecordsResponse.getRecordsResult.sys_id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<munit-tools:assert-that doc:name="Assert that User was created" doc:id="e131fc0b-7eb0-4e45-b763-67b9b6f04103" expression="#[payload.email]" is="#[MunitTools::equalTo(vars.migratedRecords[1].email)]" message="User should be created"/>
+		<munit-tools:verify-call doc:name="Verify ServiceNow Create call" doc:id="3751a280-d751-4a7a-84f9-b96fe0c57bdc" processor="servicenow:invoke" times="1">
+			<munit-tools:with-attributes >
+				<munit-tools:with-attribute attributeName="doc:id" whereValue="6183c574-16e9-4007-956c-113a2702efb9" />
+			</munit-tools:with-attributes>
+		</munit-tools:verify-call>
+	</sub-flow>
+	<munit:after-test name="test-suiteAfter_Test"
+		description="After tests actions" doc:id="06dfa255-a78d-42b0-a762-ddd5d63e1431">
+		<foreach doc:name="For Each" doc:id="a63cfeec-00c5-4dff-8476-1074449608dc" collection="vars.snowIds">
+			<ee:transform doc:name="Prepare delete request" doc:id="ef3fa635-7a9e-4b36-b08a-fff0a72c8791">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.service-now.com/sys_user
+---
+{
+    ns0#deleteRecord: {
+        ns0#sys_id: payload
+    }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			<servicenow:invoke doc:name="Delete test records" doc:id="b99cd22a-31ca-49f8-ac58-16e53c2847f6" config-ref="ServiceNow_Config" service="sys_user" operation="deleteRecord" />
+		</foreach>
+	</munit:after-test>
+
+
+
+</mule>
