@@ -6,13 +6,13 @@
 	<configuration-properties file="common.properties" doc:id="7584fb1d-2fa2-445a-b949-eed01f5785bd" doc:name="Configuration properties" />
 	<configuration-properties file="mule.${mule.env}.properties" doc:id="86e0eb9d-cf2e-451a-9e09-b4afdf13e0e9" doc:name="Configuration properties" />
 	<ns5:config name="ServiceNow_Config" doc:id="92b59af3-9802-4a08-a1a1-53607f956389" doc:name="ServiceNow Config">
-		<ns5:basic-connection password="${snow.password}" serviceAddress="${snow.endpoint}" serviceNowVersion="JAKARTA" username="${snow.user}">
+		<ns5:basic-connection password="${snow.password}" serviceAddress="${snow.endpoint}" serviceNowVersion="${snow.version}" username="${snow.user}">
 			<ns5:transport>
 				<ns5:basic-auth-http-message-dispatcher-provider password="${snow.password}" username="${snow.user}" />
 			</ns5:transport>
 		</ns5:basic-connection>
 	</ns5:config>
 	<workday:config-version-30-config name="Workday_Config_version_30" doc:name="Workday Config version 30" doc:id="6bfac9d7-52ec-41de-9fa4-73f58f7830c7" >
-		<workday:basic-authentication-api-v30-connection username="${wday.username}" password="${wday.password}" tenantName="${wday.tenant}" hostName="${wday.hostname}" responseTimeout="25000"/>
+		<workday:basic-authentication-api-v30-connection username="${wday.username}" password="${wday.password}" tenantName="${wday.tenant}" hostName="${wday.hostname}" responseTimeout="${wday.responseTimeout}"/>
 	</workday:config-version-30-config>
 </mule>

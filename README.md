@@ -128,12 +128,14 @@ To use this template, configure properties such as credentials, configurations, 
 - wday.tenant `acme_pt1`
 - wday.password `joanPass123`
 - wday.hostname `your_impl-cc.workday.com`
+- wday.responseTimeout `20000`
 
 #### ServiceNow Connector Configuration for Company B
 
 - snow.user `snow_user1`
 - snow.password `ExamplePassword881`
 - snow.endpoint `https://instance.service-now.com`
+- snow.version `snow_version`
 <!-- Application Configuration (end) -->
 
 # API Calls
